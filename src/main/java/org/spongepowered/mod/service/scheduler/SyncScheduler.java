@@ -90,7 +90,6 @@ public class SyncScheduler implements SynchronousScheduler {
      * is simply a @long but it's never negative.  A better representation would been Number (a cardinal
      * value), but this is what we're using.</p>
      *
-
      * @param event The Forge ServerTickEvent observed by this object.
      */
     @SubscribeEvent

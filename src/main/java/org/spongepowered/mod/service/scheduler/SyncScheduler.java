@@ -191,7 +191,7 @@ public class SyncScheduler implements Scheduler {
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {

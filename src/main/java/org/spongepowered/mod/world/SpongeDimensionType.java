@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.world;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import net.minecraft.world.WorldProvider;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
@@ -59,7 +59,7 @@ public class SpongeDimensionType implements DimensionType {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("name", this.name)
                 .add("keepLoaded", this.keepLoaded)
                 .add("class", this.dimensionClass.getName())

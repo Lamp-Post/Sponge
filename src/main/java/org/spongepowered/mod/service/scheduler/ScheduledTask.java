@@ -36,18 +36,18 @@ import java.util.UUID;
  * one of the Scheduler interfaces. </p>
  */
 public class ScheduledTask implements Task {
-    protected long offset;
-    protected long period;
-    protected PluginContainer owner;
-    protected Runnable runnableBody;
-    protected long timestamp;
-    protected ScheduledTaskState state;
-    protected UUID id;
-    private String name;
-    private boolean bSynchronous;
+    long offset;
+    long period;
+    PluginContainer owner;
+    Runnable runnableBody;
+    long timestamp;
+    ScheduledTaskState state;
+    UUID id;
+    String name;
+    boolean bSynchronous;
 
     // Internal Task state. Not for user-service use.
-    protected enum ScheduledTaskState {
+    enum ScheduledTaskState {
         WAITING,
         RUNNING,
         CANCELED,
@@ -60,7 +60,7 @@ public class ScheduledTask implements Task {
     }
 
     // This c'tor is OK for internal Sponge use. APIs do not expose the c'tor.
-    protected ScheduledTask(long x, long t, boolean synchronous) {
+    ScheduledTask(long x, long t, boolean synchronous) {
         // All tasks begin waiting.
         this.state = ScheduledTaskState.WAITING;
 
@@ -78,37 +78,37 @@ public class ScheduledTask implements Task {
     }
 
     // Builder method
-    protected ScheduledTask setState(ScheduledTaskState state) {
+    ScheduledTask setState(ScheduledTaskState state) {
         this.state = state;
         return this;
     }
 
     // Builder method
-    protected ScheduledTask setOffset(long x) {
+    ScheduledTask setOffset(long x) {
         this.offset = x;
         return this;
     }
 
     // Builder method
-    protected ScheduledTask setPeriod(long t) {
+    ScheduledTask setPeriod(long t) {
         this.period = t;
         return this;
     }
 
     // Builder method
-    protected ScheduledTask setTimestamp(long ts) {
+    ScheduledTask setTimestamp(long ts) {
         this.timestamp = ts;
         return this;
     }
 
     // Builder method
-    protected ScheduledTask setPluginContainer(PluginContainer owner) {
+    ScheduledTask setPluginContainer(PluginContainer owner) {
         this.owner = owner;
         return this;
     }
 
     // Builder method
-    protected ScheduledTask setRunnableBody(Runnable body) {
+    ScheduledTask setRunnableBody(Runnable body) {
         this.runnableBody = body;
         return this;
     }

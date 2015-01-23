@@ -47,11 +47,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class SyncScheduler implements SynchronousScheduler {
 
-    // The simple private queue of all pending (and running) ScheduledTasks
-    private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
+    // The simple queue of all pending (and running) ScheduledTasks
+    final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
     // The internal counter of the number of Ticks elapsed since this Scheduler was listening for
     // ServerTickEvent from Forge.
-    private volatile long counter = 0L;
+    volatile long counter = 0L;
 
     /**
      * <p>
@@ -111,7 +111,7 @@ public class SyncScheduler implements SynchronousScheduler {
         }
     }
 
-    private void processTasks() {
+    void processTasks() {
         //
         // For each task, inspect the state.
         //
@@ -167,7 +167,7 @@ public class SyncScheduler implements SynchronousScheduler {
         }
     }
 
-    private Optional<Task> utilityForAddingTask(ScheduledTask task) {
+    Optional<Task> utilityForAddingTask(ScheduledTask task) {
         Optional<Task> result = Optional.absent();
         this.taskList.add(task);
         result = Optional.of((Task) task);
@@ -461,7 +461,7 @@ public class SyncScheduler implements SynchronousScheduler {
     }
 
     // offset and period are in milliseconds (unless the Synchronicity of the Task is SYNCHRONOUS)
-    private ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
+    ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
 
         // No owner
         if (plugin == null) {
@@ -510,7 +510,7 @@ public class SyncScheduler implements SynchronousScheduler {
                 .setRunnableBody(runnableTarget);
     }
 
-    private  boolean startTask(ScheduledTask task) {
+    boolean startTask(ScheduledTask task) {
         // We'll succeed unless there's an exception found when we try to start the
         // actual Runnable target.
         boolean bRes = true;

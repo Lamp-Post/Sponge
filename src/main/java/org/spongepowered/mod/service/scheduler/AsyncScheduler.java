@@ -79,67 +79,31 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class AsyncScheduler implements AsynchronousScheduler {
 
-    // Simple Moore State machine state. (http://en.wikipedia.org/wiki/Moore_machine)
-    private static MachineState sm;
     // The simple private queue of all pending (and running) ScheduledTasks
-    private static final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
+    final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
     // Adjustable timeout for pending Tasks
-    private static long minimumTimeout = Long.MAX_VALUE;
-    private static long lastProcessingTimestamp;
+    long minimumTimeout = Long.MAX_VALUE;
+    long lastProcessingTimestamp;
     // Locking mechanism
-    private final static Lock lock = new ReentrantLock();
-    private final static Condition condition = lock.newCondition();
+    final Lock lock = new ReentrantLock();
+    final Condition condition = lock.newCondition();
     // The dynamic thread pooling executor of asynchronous tasks.
-    private static ExecutorService executor;
+    ExecutorService executor;
 
     private AsyncScheduler() {
         new Thread(new Runnable() {
             public void run() {
-                MachineState.stateMachineBody();
+                stateMachineBody();
             }
         }).start();
     }
 
-    /**
-     * <p>Unlike the State of a ScheduledTask, the @MachineState of this Asynchronous Scheduler is private and not an
-     * enumeration of values that have any user facing purpose.  This is why the enumeration is
-     * defined within the class and inaccessible to user code.</p>
-     */
-    private static enum MachineState {
-        PRE_INIT,
-        INIT,
-        RUN,
-        NOT_RUNNING;
-
-        // The Moore State Machine for this Scheduler
-        private static void stateMachineBody() {
-
-            sm = MachineState.PRE_INIT;
-            while (sm != MachineState.NOT_RUNNING) {
-                switch (sm) {
-                    case PRE_INIT: {
-                        executor = Executors.newCachedThreadPool();
-                        // TODO - Pre-Initialization ?
-                        sm = MachineState.INIT;
-                        break;
-                    }
-                    case INIT: {
-                        // TODO - Initialization ?
-                        lastProcessingTimestamp = System.currentTimeMillis();
-                        sm = MachineState.RUN;
-                        break;
-                    }
-                    case RUN: {
-                        recalibrateMinimumTimeout();
-                        // We're in the RUN state -- process all the tasks, forever.
-                        processTasks();
-                        break;
-                    }
-                    default: {
-                        // Nothing
-                    }
-                }
-            }
+    void stateMachineBody() {
+        executor = Executors.newCachedThreadPool();
+        lastProcessingTimestamp = System.currentTimeMillis();
+        while (true) {
+            recalibrateMinimumTimeout();
+            processTasks();
         }
     }
 
@@ -162,10 +126,10 @@ public class AsyncScheduler implements AsynchronousScheduler {
         return AsynchronousSchedulerSingletonHolder.INSTANCE;
     }
 
-    private static void recalibrateMinimumTimeout() {
+    void recalibrateMinimumTimeout() {
         lock.lock();
         try {
-            for (ScheduledTask task : AsyncScheduler.taskList) {
+            for (ScheduledTask task : this.taskList) {
                 // Tasks may have dropped off the list.
                 // Whatever Tasks remain, recalibrate:
                 //
@@ -200,7 +164,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         }
     }
 
-    private static void processTasks() {
+    void processTasks() {
         lock.lock();
         try {
             try {
@@ -226,10 +190,10 @@ public class AsyncScheduler implements AsynchronousScheduler {
             // Else if the task is already RUNNING, use the period (the time delay until
             // the next moment to run the task).
             //
-            for (ScheduledTask task : AsyncScheduler.taskList) {
+            for (ScheduledTask task : this.taskList) {
                 // If the task is now slated to be canceled, we just remove it as if it no longer exists.
                 if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
-                    AsyncScheduler.taskList.remove(task);
+                    this.taskList.remove(task);
                     continue;
                 }
 
@@ -260,12 +224,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
                     // change the timestamp to now.  It is a little more
                     // efficient to do this now than after starting the task.
                     task.timestamp = System.currentTimeMillis();
-                    boolean bTaskStarted = AsyncScheduler.startTask(task);
+                    boolean bTaskStarted = startTask(task);
                     if (bTaskStarted) {
                         task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
                         // If task is one time shot, remove it from the list.
                         if (task.period == 0L) {
-                            AsyncScheduler.taskList.remove(task);
+                            this.taskList.remove(task);
                         }
                     }
                 }
@@ -276,13 +240,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
         }
     }
 
-    private Optional<Task> utilityForAddingTask(ScheduledTask task) {
+    Optional<Task> utilityForAddingTask(ScheduledTask task) {
         Optional<Task> result = Optional.absent();
 
         task.setTimestamp(System.currentTimeMillis());
         lock.lock();
         try {
-            AsyncScheduler.taskList.add(task);
+            this.taskList.add(task);
             condition.signalAll();
             result = Optional.of((Task) task);
         } finally {
@@ -597,8 +561,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
     public Collection<Task> getScheduledTasks() {
 
         Collection<Task> taskCollection;
-        synchronized(AsyncScheduler.taskList) {
-            taskCollection = new ArrayList<Task>(AsyncScheduler.taskList);
+        synchronized(this.taskList) {
+            taskCollection = new ArrayList<Task>(this.taskList);
         }
         return taskCollection;
     }
@@ -638,8 +602,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
         String testOwnerID = testedOwner.getId();
         Collection<Task> subsetCollection;
 
-        synchronized(AsyncScheduler.taskList) {
-            subsetCollection = new ArrayList<Task>(AsyncScheduler.taskList);
+        synchronized(this.taskList) {
+            subsetCollection = new ArrayList<Task>(this.taskList);
         }
 
         Iterator<Task> it = subsetCollection.iterator();
@@ -666,7 +630,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * @param period The time between repeated scheduled invocations of the task, if any
      * @return ScheduledTask  The ScheduledTask is the internal implementation of the Task managed by this Scheduler
      */
-    private ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
+     ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
 
         // No owner
         if (plugin == null) {
@@ -715,7 +679,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 .setRunnableBody(runnableTarget);
     }
 
-    private static boolean startTask(ScheduledTask task) {
+    boolean startTask(ScheduledTask task) {
         // We'll succeed unless there's an exception found when we try to start the
         // actual Runnable target.
         boolean bRes = true;

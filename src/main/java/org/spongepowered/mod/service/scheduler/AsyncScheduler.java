@@ -30,7 +30,11 @@ import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
-import java.util.*;
+import java.util.Queue;
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,7 +95,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
     private AsyncScheduler() {
         new Thread(new Runnable() {
             public void run() {
-                SMachine();
+                stateMachineBody();
             }
         }).start();
     }
@@ -109,7 +113,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     // The Moore State Machine for this Scheduler
-    private void SMachine() {
+    private void stateMachineBody() {
 
         sm = MachineState.PRE_INIT;
         while ( sm != MachineState.NOT_RUNNING ) {
@@ -129,7 +133,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 case RUN: {
                     recalibrateMinimumTimeout();
                     // We're in the RUN state -- process all the tasks, forever.
-                    ProcessTasks();
+                    processTasks();
                     break;
                 }
             }
@@ -203,7 +207,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         }
     }
 
-    private void ProcessTasks() {
+    private void processTasks() {
         lock.lock();
         try {
             try {

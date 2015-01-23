@@ -26,14 +26,10 @@
 package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>ScheduledTask is an internal representation of a Task created by the Plugin through

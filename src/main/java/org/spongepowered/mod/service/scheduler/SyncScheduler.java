@@ -32,7 +32,11 @@ import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
-import java.util.*;
+import java.util.Queue;
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -102,11 +106,11 @@ public class SyncScheduler implements SynchronousScheduler {
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             this.counter++;
-            ProcessTasks();
+            processTasks();
         }
     }
 
-    private void ProcessTasks() {
+    private void processTasks() {
         //
         // For each task, inspect the state.
         //

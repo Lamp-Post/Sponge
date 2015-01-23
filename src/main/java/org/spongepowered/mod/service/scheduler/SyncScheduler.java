@@ -79,6 +79,7 @@ public class SyncScheduler implements SynchronousScheduler {
      * @return The single interface to the Synchronous Scheduler
      */
      private static class SynchronousSchedulerSingletonHolder {
+
         private static final SynchronousScheduler INSTANCE = new SyncScheduler();
      }
 
@@ -501,7 +502,9 @@ public class SyncScheduler implements SynchronousScheduler {
         //    implies a One Time Shot (See Task interface).  Non zero Period means just that -- the time
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
-        return new ScheduledTask(offset, period, false)
+
+        boolean ASYNCHRONOUS = false;
+        return new ScheduledTask(offset, period, ASYNCHRONOUS)
                 .setTimestamp(counter)
                 .setPluginContainer(plugincontainer)
                 .setRunnableBody(runnableTarget);

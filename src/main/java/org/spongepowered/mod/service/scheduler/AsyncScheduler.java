@@ -112,8 +112,11 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * <p/>
      * <p>
      * A static reference to the Synchronous Scheduler singleton is returned by
-     * the function getInstance().  The implementation of getInstance follows the usage
-     * of the AtomicReference idiom.</p>
+     * the function getInstance().</p>
+     * <p>Singleton based on:
+     * <a href="http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
+     *     Initialization on Demand Idiom</a>
+     * </p>
      *
      * @return The single interface to the Synchronous Scheduler
      */

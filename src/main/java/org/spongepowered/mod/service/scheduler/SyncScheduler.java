@@ -35,6 +35,12 @@ import org.spongepowered.mod.SpongeMod;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+
+/**
+ * <p>Internal implementation of the SynchronousScheduler interface.</p>
+ *
+ * @see {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
+ */
 public class SyncScheduler implements SynchronousScheduler {
 
     // The simple private queue of all pending (and running) ScheduledTasks

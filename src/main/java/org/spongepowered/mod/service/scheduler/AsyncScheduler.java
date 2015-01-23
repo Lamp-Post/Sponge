@@ -42,14 +42,16 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * <p>Asynchronous Scheduler</p>
  *
- * <p>The Asynchronous Scheduler is similar to the {@link SyncScheduler}.  They have the same kind of API signature
+ * <p>The Asynchronous Scheduler is similar to the {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}.
+ * They have the same kind of API signature
  * and operate with the same kind of Tasks.  The exceptional difference between the SyncScheduler and this
  * Asynchronous Scheduler is that this Scheduler will base timing of Tasks on wall-clock time.  The wall-clock
  * time is used to determine when to run a Task.</p>
  *
  * <p>Main Differences</p>
  *
- * <p>{@link SyncScheduler} implements {@link Scheduler} interface and uses Ticks as the time unit. Tasks are
+ * <p>{@link SyncScheduler} implements {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
+ * interface and uses Ticks as the time unit. Tasks are
  * created with parameters (if any) that involve delays and periods based on Tick time units. Theoretically a Tick
  * is 50ms, but due to overhead and latency, the monotonous timing of Tick based Tasks is not guaranteed.</p>
  *
@@ -65,8 +67,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * concurrency issues in their plugins.</p>
  * *
  * <p>Tasks can be created using the API in the {@link AsynchronousScheduler} interface. The access to this Scheduler
- * through the {@link Game} interface method    AsynchronousScheduler getAsyncScheduler();  Plugin authors never
- * cause the creation of a scheduler, the scheduler (Asynchronous and {@link SyncScheduler} are each Singletons.</p>
+ * through the {@link org.spongepowered.api.Game} interface method AsynchronousScheduler getAsyncScheduler();
+ * Plugin authors never cause the creation of a scheduler, the scheduler (Asynchronous and {@link SyncScheduler}
+ * are each Singletons.</p>
  *
  *
  */
@@ -318,7 +321,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
@@ -379,7 +382,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in scale units before running the task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, TimeUnit scale, long delay) {
@@ -428,7 +431,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt;&nbsp; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -456,7 +459,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param scale The TimeUnit scale of the interval argument.
      * @param interval The period in scale time units of the repeating Task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, TimeUnit scale, long interval) {
@@ -505,7 +508,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt;&nbsp; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -544,7 +547,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * @param scale
      * @param delay  The offset in time unit scale before running the task.
      * @param interval The offset in time unit scale before running the task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, TimeUnit scale, long interval, long delay) {
@@ -575,13 +578,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * <code>
      *     UUID myID;
      *     // ...
-     *     Optional<Task> task;
+     *     Optional&lt;Task&gt;&nbsp; task;
      *     task = SyncScheduler.getInstance().getTaskById(myID);
      * </code>
      * </p>
      *
      * @param id The UUID of the Task to find.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the existing Task.
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the existing Task.
      */
     @Override
     public Optional<Task> getTaskById(UUID id) {

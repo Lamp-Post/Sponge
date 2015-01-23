@@ -35,8 +35,10 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-// WIP
-
+/**
+ * <p>ScheduledTask is an internal representation of a Task created by the Plugin through
+ * one of the Scheduler interfaces. </p>
+ */
 public class ScheduledTask implements Task {
     protected long offset;
     protected long period;
@@ -75,7 +77,7 @@ public class ScheduledTask implements Task {
         this.id = UUID.randomUUID();
         this.bSynchronous = synchronous;
 
-        //TBD
+        // For now, the name is the UUID.  The implementation may change, but the API will stay intact.
         this.name = this.id.toString();
     }
 

@@ -42,31 +42,31 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * <p>Asynchronous Scheduler</p>
  *
- * <p>The Asynchronous Scheduler is similar to the {@Link SyncScheduler}.  They have the same kind of API signature
+ * <p>The Asynchronous Scheduler is similar to the {@link SyncScheduler}.  They have the same kind of API signature
  * and operate with the same kind of Tasks.  The exceptional difference between the SyncScheduler and this
  * Asynchronous Scheduler is that this Scheduler will base timing of Tasks on wall-clock time.  The wall-clock
  * time is used to determine when to run a Task.</p>
  *
  * <p>Main Differences</p>
  *
- * <p>{@Link SyncScheduler} implements {@Link Scheduler} interface and uses Ticks as the time unit. Tasks are
+ * <p>{@link SyncScheduler} implements {@link Scheduler} interface and uses Ticks as the time unit. Tasks are
  * created with parameters (if any) that involve delays and periods based on Tick time units. Theoretically a Tick
  * is 50ms, but due to overhead and latency, the monotonous timing of Tick based Tasks is not guaranteed.</p>
  *
- * <p> {@Link AsyncScheduler} implements {@Link AsynchronousScheduler} interface and uses milliseconds as the time
+ * <p> {@link AsyncScheduler} implements {@link AsynchronousScheduler} interface and uses milliseconds as the time
  * unit.  Tasks created with parameters (if any) that involve delays and periods based on milliseconds and relative
  * to the wall-clock of the host system.  Caveat: the wall-clock time is used for measuring elapsed time, but the
  * actual date/time of the host system or changes to the host date/time will not affect the scheduling of Tasks.
  * Because the AsyncScheduler is running its own thread all tasks that  execute from this scheduler are not
  * synchronous with the game data.  In other-words, the Tasks that are executed by the AsyncScheduler are not
  * thread-safe with the game data.  Plugin authors should use care when leveraging concurrency in their plugins
- * when those plugins access game data as a result of a Asynchronous {@Link Task} running.  Several resources can
+ * when those plugins access game data as a result of a Asynchronous {@link Task} running.  Several resources can
  * help the plugin author:  The Java Concurrency book by Lea and Effective Java by Bloch for information handling
  * concurrency issues in their plugins.</p>
  * *
- * <p>Tasks can be created using the API in the {@Link AsynchronousScheduler} interface. The access to this Scheduler
- * through the {@Link Game} interface method    AsynchronousScheduler getAsyncScheduler();  Plugin authors never
- * cause the creation of a scheduler, the scheduler (Asynchronous and {@Link SyncScheduler} are each Singletons.</p>
+ * <p>Tasks can be created using the API in the {@link AsynchronousScheduler} interface. The access to this Scheduler
+ * through the {@link Game} interface method    AsynchronousScheduler getAsyncScheduler();  Plugin authors never
+ * cause the creation of a scheduler, the scheduler (Asynchronous and {@link SyncScheduler} are each Singletons.</p>
  *
  *
  */

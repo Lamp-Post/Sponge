@@ -40,9 +40,9 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{
-                MixinBootstrap.TRANSFORMER_CLASS,
-                //"org.spongepowered.mod.asm.transformers.EventTransformer",
-                //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
+            MixinBootstrap.TRANSFORMER_CLASS,
+            //"org.spongepowered.mod.asm.transformers.EventTransformer",
+            //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
         };
     }
 

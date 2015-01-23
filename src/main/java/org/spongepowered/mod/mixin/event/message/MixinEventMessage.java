@@ -36,7 +36,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
 public abstract class MixinEventMessage implements MessageEvent {
 
-    @Shadow public String message, username;
+    @Shadow public String message;
+    @Shadow public String username;
     @Shadow public EntityPlayerMP player;
     @Shadow public ChatComponentTranslation component;
 

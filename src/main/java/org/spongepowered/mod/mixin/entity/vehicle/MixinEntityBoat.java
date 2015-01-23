@@ -104,7 +104,8 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         }
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Lnet/minecraft/entity/Entity;", ordinal = 0))
+    @Inject(method = "onUpdate()V",
+            at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Lnet/minecraft/entity/Entity;", ordinal = 0))
     public void implementCustomDeceleration(CallbackInfo ci) {
         if (!(this.riddenByEntity instanceof EntityLivingBase)) {
             double decel = this.riddenByEntity == null ? this.unoccupiedDecelerationSpeed : this.occupiedDecelerationSpeed;

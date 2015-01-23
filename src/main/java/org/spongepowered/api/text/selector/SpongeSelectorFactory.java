@@ -72,6 +72,7 @@ public class SpongeSelectorFactory implements SelectorFactory {
                         break;
                     case 3:
                         key = "r";
+                    default:
                 }
 
                 if (key != null && shortcuts.group(1).length() > 0) {

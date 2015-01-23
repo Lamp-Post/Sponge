@@ -207,8 +207,7 @@ public class SyncScheduler implements SynchronousScheduler {
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
+        } else {
             result = utilityForAddingTask(nonRepeatingTask);
         }
 
@@ -251,8 +250,7 @@ public class SyncScheduler implements SynchronousScheduler {
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
+        } else {
             result = utilityForAddingTask(nonRepeatingTask);
         }
 
@@ -464,10 +462,8 @@ public class SyncScheduler implements SynchronousScheduler {
         if (plugin == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_NULL_WARNING);
             return null;
-        }
-
-        // Owner is not a PluginContainer derived class
-        else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+        }  else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+            // Owner is not a PluginContainer derived class
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
             return null;
         }

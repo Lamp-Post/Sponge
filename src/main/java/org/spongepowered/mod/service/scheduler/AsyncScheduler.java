@@ -177,17 +177,14 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 minimumTimeout = Long.MAX_VALUE;
                 if (task.offset == 0 && task.period == 0) {
                     minimumTimeout = 0;
-                }
-                // task with non-zero offset, zero period
-                else if (task.offset > 0 && task.period == 0) {
+                } else if (task.offset > 0 && task.period == 0) {
+                    // task with non-zero offset, zero period
                     minimumTimeout = Math.min(task.offset, minimumTimeout);
-                }
-                // task with zero offset, non-zero period
-                else if (task.offset == 0 && task.period > 0) {
+                } else if (task.offset == 0 && task.period > 0) {
+                    // task with zero offset, non-zero period
                     minimumTimeout = Math.min(task.period, minimumTimeout);
-                }
-                // task with non-zero offset, non-zero period
-                else if (task.offset > 0 && task.period > 0) {
+                } else if (task.offset > 0 && task.period > 0) {
+                    // task with non-zero offset, non-zero period
                     minimumTimeout = Math.min(task.offset, minimumTimeout);
                     minimumTimeout = Math.min(task.period, minimumTimeout);
                 }
@@ -196,8 +193,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
             // If no tasks remain, recalibrate to max timeout
             if (taskList.isEmpty()) {
                 minimumTimeout = Long.MAX_VALUE;
-            }
-            else {
+            }  else {
                 long latency = System.currentTimeMillis() - lastProcessingTimestamp;
                 minimumTimeout -= (latency <= 0) ? 0 : latency;
                 minimumTimeout = (minimumTimeout < 0) ? 0 : minimumTimeout;
@@ -338,8 +334,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
+        } else {
             result = utilityForAddingTask(nonRepeatingTask);
         }
 
@@ -397,8 +392,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
+        } else {
             result = utilityForAddingTask(nonRepeatingTask);
         }
 
@@ -682,10 +676,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
         if (plugin == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_NULL_WARNING);
             return null;
-        }
-
-        // Owner is not a PluginContainer derived class
-        else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+        } else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+            // Owner is not a PluginContainer derived class
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
             return null;
         }

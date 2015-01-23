@@ -141,16 +141,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Returns the instance (handle) to the Asynchronous TaskScheduler.</p>
-     *
-     * <p>
-     * A static reference to the TaskScheduler singleton is returned by
-     * the function getInstance().  The implementation of getInstance follows the usage
-     * of the AtomicReference idiom.</p>
-     *
-     * @return The single interface to the Asynchronous Scheduler
-     */
-    /**
      * <p>Returns the instance (handle) to the Synchronous TaskScheduler.</p>
      * <p/>
      * <p>
@@ -160,7 +150,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *
      * @return The single interface to the Synchronous Scheduler
      */
-
     private static class AsynchronousSchedulerSingletonHolder {
         private static final AsynchronousScheduler INSTANCE = new AsyncScheduler();
     }
@@ -292,8 +281,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
             this.taskList.add(task);
             condition.signalAll();
             result = Optional.of((Task) task);
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
 

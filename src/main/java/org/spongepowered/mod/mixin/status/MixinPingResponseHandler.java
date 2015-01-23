@@ -129,7 +129,7 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
 
                 response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyGameVersion.V1_5, null);
                 if (response != null) {
-                    this.writeResponse(ctx, String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
+                    this.writeResponse(ctx, String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
                                                           response.getProtocolVersionInfo().getProtocol(),
                                                           response.getProtocolVersionInfo().getName(),
                                                           SpongeStatusResponse.getMotd(response),
@@ -172,7 +172,7 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
                 response = SpongeStatusResponse.postLegacy(server, client, new SpongeLegacyGameVersion(SpongeLegacyGameVersion.V1_6, protocol),
                                                            InetSocketAddress.createUnresolved(host, port));
                 if (response != null) {
-                    this.writeResponse(ctx, String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
+                    this.writeResponse(ctx, String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
                                                           response.getProtocolVersionInfo().getProtocol(),
                                                           response.getProtocolVersionInfo().getName(),
                                                           SpongeStatusResponse.getMotd(response),

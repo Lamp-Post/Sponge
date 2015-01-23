@@ -32,18 +32,11 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Furnace.class, prefix = "furnace$"))
 @Mixin(net.minecraft.tileentity.TileEntityFurnace.class)
 public abstract class MixinTileEntityFurnace extends TileEntityLockable implements IUpdatePlayerListBox, ISidedInventory {
-
-    @Shadow
-    public abstract int getField(int id);
-
-    @Shadow
-    public abstract void setField(int id, int value);
 
     public int furnace$getRemainingBurnTime() {
         return getField(0);

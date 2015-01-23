@@ -35,18 +35,11 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Beacon.class, prefix = "beacon$"))
 @Mixin(net.minecraft.tileentity.TileEntityBeacon.class)
 public abstract class MixinTileEntityBeacon extends TileEntityLockable implements IUpdatePlayerListBox, IInventory {
-
-    @Shadow
-    public abstract int getField(int id);
-
-    @Shadow
-    public abstract void setField(int id, int value);
 
     public Optional<PotionEffectType> beacon$getPrimaryEffect() {
         return Optional.fromNullable((PotionEffectType) Potion.potionTypes[getField(1)]);

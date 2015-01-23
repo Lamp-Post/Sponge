@@ -32,18 +32,11 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Implements(@Interface(iface = BrewingStand.class, prefix = "brewingstand$"))
 @Mixin(net.minecraft.tileentity.TileEntityBrewingStand.class)
 public abstract class MixinTileEntityBrewingStand extends TileEntityLockable implements IUpdatePlayerListBox, ISidedInventory {
-
-    @Shadow
-    public abstract int getField(int id);
-
-    @Shadow
-    public abstract void setField(int id, int value);
 
     public int brewingstand$getRemainingBrewTime() {
         return getField(0);

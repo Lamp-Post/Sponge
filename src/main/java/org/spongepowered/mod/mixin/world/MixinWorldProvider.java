@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.world;
 
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.DimensionManager;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
@@ -46,19 +45,23 @@ public abstract class MixinWorldProvider implements Dimension {
     protected int dimensionId;
     @Shadow
     protected boolean isHellWorld;
+
     @Shadow
     public abstract String getDimensionName();
+
     @Shadow
     public abstract boolean canRespawnHere();
+
     @Shadow
     public abstract int getAverageGroundLevel();
+
     @Shadow
     public abstract boolean getHasNoSky();
 
     @Overwrite
     public static WorldProvider getProviderForDimension(int dimension) {
         WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);
-        Dimension dim = (Dimension)provider;
+        Dimension dim = (Dimension) provider;
         dim.setAllowsPlayerRespawns(DimensionManager.shouldLoadSpawn(dimension));
         return provider;
     }
@@ -105,6 +108,6 @@ public abstract class MixinWorldProvider implements Dimension {
 
     @Override
     public DimensionType getType() {
-        return ((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).dimensionClassMappings.get(this.getClass());
+        return ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry()).dimensionClassMappings.get(this.getClass());
     }
 }

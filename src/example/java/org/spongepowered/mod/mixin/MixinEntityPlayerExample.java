@@ -28,7 +28,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;

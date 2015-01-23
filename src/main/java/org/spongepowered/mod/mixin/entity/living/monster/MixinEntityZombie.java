@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.monster;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.monster.Zombie;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -50,11 +49,11 @@ public abstract class MixinEntityZombie extends EntityMob {
         super(worldIn);
     }
 
-   public boolean zombie$isVillagerZombie() {
-       return this.isVillager();
-   }
+    public boolean zombie$isVillagerZombie() {
+        return this.isVillager();
+    }
 
-   public void zombie$setVillagerZombie(boolean villagerZombie) {
-       this.setVillager(villagerZombie);
-   }
+    public void zombie$setVillagerZombie(boolean villagerZombie) {
+        this.setVillager(villagerZombie);
+    }
 }

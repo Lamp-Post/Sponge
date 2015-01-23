@@ -27,6 +27,7 @@ package org.spongepowered.mod.status;
 import org.spongepowered.api.GameVersion;
 
 public class SpongeLegacyGameVersion implements GameVersion {
+
     public static final SpongeLegacyGameVersion V1_3 = new SpongeLegacyGameVersion("<=1.3", 39);
     public static final SpongeLegacyGameVersion V1_5 = new SpongeLegacyGameVersion("1.4-1.5", 61);
     public static final SpongeLegacyGameVersion V1_6 = new SpongeLegacyGameVersion("1.6", 78);
@@ -56,7 +57,9 @@ public class SpongeLegacyGameVersion implements GameVersion {
 
     @Override
     public int compareTo(GameVersion o) {
-        if (o == this) return 0;
+        if (o == this) {
+            return 0;
+        }
         return o.isLegacy() ? this.latestVersion - ((SpongeLegacyGameVersion) o).latestVersion : -1;
     }
 }

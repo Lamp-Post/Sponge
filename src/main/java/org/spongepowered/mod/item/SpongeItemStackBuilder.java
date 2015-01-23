@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import net.minecraft.item.Item;
-
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;

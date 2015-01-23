@@ -24,26 +24,18 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
-
 import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.WorldInfo;
-
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.Entity;
@@ -66,6 +58,12 @@ import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.util.VecHelper;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World {
@@ -85,7 +83,7 @@ public abstract class MixinWorld implements World {
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
 
     @Override
-    public UUID getUniqueID() {
+    public UUID getUniqueId() {
         throw new UnsupportedOperationException();
     }
 
@@ -96,22 +94,22 @@ public abstract class MixinWorld implements World {
 
     @Override
     public Optional<Chunk> getChunk(Vector3i position) {
-        WorldServer worldserver = (WorldServer)(Object)this;
+        WorldServer worldserver = (WorldServer) (Object) this;
         net.minecraft.world.chunk.Chunk chunk = null;
         if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ())) {
             chunk = worldserver.theChunkProviderServer.provideChunk(position.getX(), position.getZ());
         }
-        return Optional.fromNullable((Chunk)chunk);
+        return Optional.fromNullable((Chunk) chunk);
     }
 
     @Override
     public Optional<Chunk> loadChunk(Vector3i position, boolean shouldGenerate) {
-        WorldServer worldserver = (WorldServer)(Object)this;
+        WorldServer worldserver = (WorldServer) (Object) this;
         net.minecraft.world.chunk.Chunk chunk = null;
         if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ()) || shouldGenerate) {
             chunk = worldserver.theChunkProviderServer.loadChunk(position.getX(), position.getZ());
         }
-        return Optional.fromNullable((Chunk)chunk);
+        return Optional.fromNullable((Chunk) chunk);
     }
 
     @Override
@@ -206,8 +204,8 @@ public abstract class MixinWorld implements World {
     long weatherStartTime;
 
     @Inject(method = "updateWeatherBody()V", remap = false, at = {
-        @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
-        @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
+            @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
+            @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
     })
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.weatherStartTime = this.worldInfo.getWorldTotalTime();
@@ -248,7 +246,7 @@ public abstract class MixinWorld implements World {
 
     @Override
     public Dimension getDimension() {
-        return (Dimension)this.provider;
+        return (Dimension) this.provider;
     }
 
     @Override

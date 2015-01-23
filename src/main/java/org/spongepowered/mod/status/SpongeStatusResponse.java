@@ -38,7 +38,8 @@ import java.util.regex.Pattern;
 
 public final class SpongeStatusResponse {
 
-    private SpongeStatusResponse() {}
+    private SpongeStatusResponse() {
+    }
 
     public static ServerStatusResponse post(MinecraftServer server, StatusClient client) {
         return call(create(server), client);

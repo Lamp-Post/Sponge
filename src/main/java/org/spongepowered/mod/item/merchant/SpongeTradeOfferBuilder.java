@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import net.minecraft.village.MerchantRecipe;
-
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
@@ -106,7 +105,7 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
         checkState(this.useCount <= this.maxUses, "Usage count cannot be greater than the max usage count (%s)", this.maxUses);
         MerchantRecipe recipe =
                 new MerchantRecipe((net.minecraft.item.ItemStack) this.firstItem, (net.minecraft.item.ItemStack) this.secondItem,
-                        (net.minecraft.item.ItemStack) this.sellingItem, this.useCount, this.maxUses);
+                                   (net.minecraft.item.ItemStack) this.sellingItem, this.useCount, this.maxUses);
         try {
             field_180323_f.setBoolean(recipe, this.allowsExperience);
         } catch (Exception ignored) {

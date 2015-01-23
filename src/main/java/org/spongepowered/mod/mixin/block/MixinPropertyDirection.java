@@ -26,11 +26,9 @@ package org.spongepowered.mod.mixin.block;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
-
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.util.EnumFacing;
-
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -100,7 +98,7 @@ public abstract class MixinPropertyDirection extends PropertyEnum implements Blo
         EnumFacing facing = SpongeGameRegistry.directionMap.get(direction);
         if (facing == null) {
             throw new IllegalArgumentException(String.format("Invalid Direction '%s', only cardinal and upright directions are supported",
-                    direction.toString()));
+                                                             direction.toString()));
         }
         return facing;
     }

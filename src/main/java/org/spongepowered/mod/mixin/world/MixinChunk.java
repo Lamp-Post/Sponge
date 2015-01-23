@@ -25,11 +25,9 @@
 package org.spongepowered.mod.mixin.world;
 
 import com.flowpowered.math.vector.Vector3i;
-
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
@@ -72,7 +70,7 @@ public abstract class MixinChunk implements Chunk {
 
     @Override
     public boolean loadChunk(boolean generate) {
-        WorldServer worldserver = (WorldServer)(Object)this;
+        WorldServer worldserver = (WorldServer) (Object) this;
         net.minecraft.world.chunk.Chunk chunk = null;
         if (worldserver.theChunkProviderServer.chunkExists(this.xPosition, this.zPosition) || generate) {
             chunk = worldserver.theChunkProviderServer.loadChunk(this.xPosition, this.zPosition);
@@ -88,7 +86,7 @@ public abstract class MixinChunk implements Chunk {
                 return false;
             }
         }
-        ((WorldServer)this.worldObj).theChunkProviderServer.dropChunk(this.xPosition, this.zPosition);
+        ((WorldServer) this.worldObj).theChunkProviderServer.dropChunk(this.xPosition, this.zPosition);
         return true;
     }
 }

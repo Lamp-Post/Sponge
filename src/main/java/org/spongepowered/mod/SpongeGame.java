@@ -120,6 +120,6 @@ public final class SpongeGame implements Game {
 
     @Override
     public Optional<Server> getServer() {
-        return Optional.fromNullable((Server)FMLCommonHandler.instance().getMinecraftServerInstance());
+        return Optional.fromNullable((Server) FMLCommonHandler.instance().getMinecraftServerInstance());
     }
 }

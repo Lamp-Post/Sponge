@@ -24,8 +24,7 @@
  */
 package org.spongepowered.mod.entity;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.spongepowered.api.entity.living.meta.HorseColor;
 import org.spongepowered.api.entity.living.meta.HorseStyle;
 import org.spongepowered.api.entity.living.meta.HorseVariant;
@@ -33,7 +32,7 @@ import org.spongepowered.api.entity.living.meta.OcelotType;
 import org.spongepowered.api.entity.living.meta.RabbitType;
 import org.spongepowered.api.entity.living.meta.SkeletonType;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 
 public class SpongeEntityConstants {

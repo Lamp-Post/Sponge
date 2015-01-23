@@ -98,8 +98,7 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         if ((displacement > this.initialDisplacement) && (this.speedMultiplier < this.maxSpeed)) {
             this.speedMultiplier += (this.maxSpeed - this.speedMultiplier) / this.maxSpeed * 100.0;
             this.speedMultiplier = Math.min(this.speedMultiplier, this.maxSpeed);
-        }
-        else {
+        } else {
             this.speedMultiplier -= (this.speedMultiplier - 0.07) / this.maxSpeed * 100.0;
             this.speedMultiplier = Math.max(this.speedMultiplier, 0.07);
         }

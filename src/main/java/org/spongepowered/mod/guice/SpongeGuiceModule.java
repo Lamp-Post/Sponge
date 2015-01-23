@@ -45,9 +45,10 @@ import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.lang.annotation.Annotation;
+
+import javax.inject.Inject;
 
 public class SpongeGuiceModule extends AbstractModule {
 

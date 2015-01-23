@@ -87,7 +87,9 @@ public class SpongeGameVersion implements ProtocolGameVersion {
     }
 
     public static int compare(ProtocolGameVersion version, GameVersion to) {
-        if (version == to) return 0;
+        if (version == to) {
+            return 0;
+        }
         return to.isLegacy() ? 1 : version.getProtocol() - ((ProtocolGameVersion) to).getProtocol();
     }
 }

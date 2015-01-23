@@ -54,8 +54,12 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RegisteredHandler that = (RegisteredHandler) o;
         return this.handler.equals(that.handler);
     }

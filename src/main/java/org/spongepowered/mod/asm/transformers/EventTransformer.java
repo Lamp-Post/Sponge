@@ -26,11 +26,11 @@ package org.spongepowered.mod.asm.transformers;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.event.FMLEvent;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;

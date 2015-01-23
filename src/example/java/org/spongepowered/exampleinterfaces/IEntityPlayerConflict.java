@@ -25,7 +25,6 @@
 package org.spongepowered.exampleinterfaces;
 
 import net.minecraft.entity.EntityLivingBase;
-
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.mod.mixin.MixinWorldProviderExample;
 

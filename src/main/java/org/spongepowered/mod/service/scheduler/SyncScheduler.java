@@ -32,7 +32,11 @@ import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -126,10 +130,10 @@ public class SyncScheduler implements Scheduler {
      */
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-       if (event.phase == TickEvent.Phase.START) {
+        if (event.phase == TickEvent.Phase.START) {
             this.counter++;
             ProcessTasks();
-       }
+        }
     }
 
     private void ProcessTasks() {
@@ -243,12 +247,11 @@ public class SyncScheduler implements Scheduler {
 
         if (nonRepeatingtask == null) {
             SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
-            synchronized(this.taskList) {
+        } else {
+            synchronized (this.taskList) {
                 this.taskList.add(nonRepeatingtask);
             }
-            result = Optional.of  ( (Task) nonRepeatingtask );
+            result = Optional.of((Task) nonRepeatingtask);
         }
 
         return result;
@@ -290,14 +293,13 @@ public class SyncScheduler implements Scheduler {
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
+        } else {
 
-            synchronized(this.taskList) {
+            synchronized (this.taskList) {
                 nonRepeatingTask.setTimestamp(this.counter);
                 this.taskList.add(nonRepeatingTask);
             }
-            result = Optional.of  ( (Task) nonRepeatingTask );
+            result = Optional.of((Task) nonRepeatingTask);
         }
 
         return result;
@@ -319,7 +321,7 @@ public class SyncScheduler implements Scheduler {
      * if the previous occurance of the Task is still alive (running).  As long as a prevous occurance
      * is running no new occurances of that specific Task will start, although the Scheduler will
      * never cease in trying to start it a 2nd time.</p>
-     * 
+     *
      * <p>
      * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
      * event of the Tick from the game.  Overhead, network and system latency not 
@@ -342,7 +344,8 @@ public class SyncScheduler implements Scheduler {
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable task, long interval) {
-        Optional<Task> result = Optional.absent();;
+        Optional<Task> result = Optional.absent();
+        ;
         final long NODELAY = 0L;
 
         ScheduledTask repeatingTask = taskValidationStep(plugin, task, NODELAY, interval);
@@ -350,11 +353,11 @@ public class SyncScheduler implements Scheduler {
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
+            synchronized (this.taskList) {
                 repeatingTask.setTimestamp(this.counter);
                 this.taskList.add(repeatingTask);
             }
-            result = Optional.of  ( (Task) repeatingTask );
+            result = Optional.of((Task) repeatingTask);
         }
 
         return result;
@@ -378,7 +381,7 @@ public class SyncScheduler implements Scheduler {
      * if the previous occurance of the Task is still alive (running).  As long as a prevous occurance
      * is running no new occurances of that specific Task will start, although the Scheduler will
      * never cease in trying to start it a 2nd time.</p>
-     * 
+     *
      * <p>
      * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
      * event of the Tick from the game.  Overhead, network and system latency not 
@@ -402,18 +405,19 @@ public class SyncScheduler implements Scheduler {
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable task, long interval, long delay) {
-        Optional<Task> result = Optional.absent();;
+        Optional<Task> result = Optional.absent();
+        ;
 
         ScheduledTask repeatingTask = taskValidationStep(plugin, task, delay, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
+            synchronized (this.taskList) {
                 repeatingTask.setTimestamp(this.counter);
                 this.taskList.add(repeatingTask);
             }
-            result = Optional.of  ( (Task) repeatingTask );
+            result = Optional.of((Task) repeatingTask);
         }
 
         return result;
@@ -446,7 +450,7 @@ public class SyncScheduler implements Scheduler {
         for (Iterator<ScheduledTask> itr = this.taskList.iterator(); itr.hasNext(); ) {
             ScheduledTask task = itr.next();
             if (id.equals(task.id)) {
-                result = Optional.of( (Task) task);
+                result = Optional.of((Task) task);
             }
         }
         return result;
@@ -462,7 +466,7 @@ public class SyncScheduler implements Scheduler {
 
         Collection<Task> taskCollection;
 
-        synchronized(this.taskList) {
+        synchronized (this.taskList) {
             taskCollection = new ArrayList<Task>(this.taskList);
         }
 
@@ -504,7 +508,7 @@ public class SyncScheduler implements Scheduler {
         String testOwnerID = testedOwner.getId();
         Collection<Task> subsetCollection;
 
-        synchronized(this.taskList) {
+        synchronized (this.taskList) {
             subsetCollection = new ArrayList<Task>(this.taskList);
         }
 
@@ -512,7 +516,9 @@ public class SyncScheduler implements Scheduler {
 
         while (it.hasNext()) {
             String pluginId = ((PluginContainer) it.next()).getId();
-            if (!testOwnerID.equals(pluginId)) it.remove();
+            if (!testOwnerID.equals(pluginId)) {
+                it.remove();
+            }
         }
 
         return subsetCollection;
@@ -524,7 +530,7 @@ public class SyncScheduler implements Scheduler {
         if (plugin == null) {
             if (plugin == null) {
                 SpongeMod.instance.getLogger().warn(LogMessages.PLUGIN_CONTAINER_NULL_WARNING);
-            } 
+            }
             return null;
         }
 
@@ -545,13 +551,12 @@ public class SyncScheduler implements Scheduler {
             return null;
         }
 
-
-        if ( offset < 0L ) {
+        if (offset < 0L) {
             SpongeMod.instance.getLogger().error(LogMessages.DELAY_NEGATIVE_ERROR);
             return null;
         }
 
-        if ( period < 0L ) {
+        if (period < 0L) {
             SpongeMod.instance.getLogger().error(LogMessages.INTERVAL_NEGATIVE_ERROR);
             return null;
         }
@@ -579,7 +584,7 @@ public class SyncScheduler implements Scheduler {
         return scheduledtask;
     }
 
-    private  boolean startTask(ScheduledTask task) {
+    private boolean startTask(ScheduledTask task) {
         boolean bRes = true;
 
         if (task != null) {
@@ -605,7 +610,7 @@ public class SyncScheduler implements Scheduler {
 
     // Text strings that are logged in the case of warnings/errors/exceptions as needed.
     // Edit to suit.
- 
+
     private enum LogMessages {
 
         CANNOT_MAKE_TASK_WARNING("Task cannot be created."),
@@ -620,7 +625,8 @@ public class SyncScheduler implements Scheduler {
 
         NULL_RUNNABLE_ARGUMENT_WARNING("The Task cannot be created because the Runnable argument is null."),
 
-        NULL_RUNNABLE_ARGUMENT_INVALID_WARNING("The Task could not be created because the Runnable argument is not derived from a Runnable interface."),
+        NULL_RUNNABLE_ARGUMENT_INVALID_WARNING(
+                "The Task could not be created because the Runnable argument is not derived from a Runnable interface."),
 
         USER_TASK_FAILED_TO_RUN_ERROR("The Scheduler tried to run the Task, but the Runnable could not be started."),
 
@@ -633,6 +639,6 @@ public class SyncScheduler implements Scheduler {
             this.message = val;
         }
     }
-    
+
 
 }

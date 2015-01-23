@@ -34,6 +34,7 @@ import java.util.UUID;
 // WIP
 
 public class ScheduledTask implements Task {
+
     protected long offset;
     protected long period;
     protected PluginContainer owner;
@@ -112,7 +113,7 @@ public class ScheduledTask implements Task {
     @Override
     public Optional<Long> getDelay() {
         Optional<Long> result = Optional.absent();
-        if ( this.offset > 0 ) {
+        if (this.offset > 0) {
             result = Optional.of(new Long(this.offset));
 
         }
@@ -122,7 +123,7 @@ public class ScheduledTask implements Task {
     @Override
     public Optional<Long> getInterval() {
         Optional<Long> result = Optional.absent();
-        if ( this.period > 0 ) {
+        if (this.period > 0) {
             result = Optional.of(new Long(this.period));
 
         }
@@ -160,7 +161,7 @@ public class ScheduledTask implements Task {
     @Override
     public Optional<String> getName() {
         Optional<String> result = Optional.absent();
-        if ( this.name != null)  {
+        if (this.name != null) {
             result = Optional.of(this.name);
         }
         return result;

@@ -29,7 +29,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;

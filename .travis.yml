@@ -1,11 +1,13 @@
+sudo: false
 language: java
+jdk:
+  - openjdk6
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+install:
+  - gradle setupCIWorkspace
+  - gradle assemble
+script: gradle check
 notifications:
   email: false
-install: true
-script:
-  - gradle setupCIWorkspace
-  - gradle build
-  - git diff --exit-code
-matrix:
-  include:
-  - jdk: openjdk6

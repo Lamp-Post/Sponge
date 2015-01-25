@@ -105,7 +105,7 @@ public class SyncScheduler implements Scheduler {
         if (instance == null) {
             synchronized (SyncScheduler.class) {
                 if (instance == null) {
-                    instance = (Scheduler) new SyncScheduler();
+                    instance = new SyncScheduler();
                 }
             }
         }

@@ -27,14 +27,13 @@ package org.spongepowered.mod.service.scheduler;
 import com.google.common.base.Optional;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
+import org.spongepowered.api.service.scheduler.SchedulerQuery;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.Queue;
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,8 +88,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
     final Condition condition = lock.newCondition();
     // The dynamic thread pooling executor of asynchronous tasks.
     ExecutorService executor;
+    // Query actor for task information
+    SchedulerHelper schedulerHelper;
 
     private AsyncScheduler() {
+        schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.ASYNCHRONOUS);
+
         new Thread(new Runnable() {
             public void run() {
                 stateMachineBody();
@@ -243,7 +246,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         }
     }
 
-    Optional<Task> utilityForAddingTask(ScheduledTask task) {
+    Optional<Task> utilityForAddingAsyncTask(ScheduledTask task) {
         Optional<Task> result = Optional.absent();
 
         task.setTimestamp(System.currentTimeMillis());
@@ -293,12 +296,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(nonRepeatingTask);
+            result = utilityForAddingAsyncTask(nonRepeatingTask);
         }
 
         return result;
@@ -351,12 +354,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // per the scale of the time unit.
         delay = scale.toMillis(delay);
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
+        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(nonRepeatingTask);
+            result = utilityForAddingAsyncTask(nonRepeatingTask);
         }
 
         return result;
@@ -426,12 +429,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // The interval passed to this method is converted to the number of milliseconds
         // per the scale of the time unit.
         interval = scale.toMillis(interval);
-        ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, interval);
+        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(repeatingTask);
+            result = utilityForAddingAsyncTask(repeatingTask);
         }
 
         return result;
@@ -514,12 +517,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // per the scale of the time unit.
         interval = scale.toMillis(interval);
         delay = scale.toMillis(delay);
-        ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, delay, interval);
+        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(repeatingTask);
+            result = utilityForAddingAsyncTask(repeatingTask);
         }
 
         return result;
@@ -555,131 +558,24 @@ public class AsyncScheduler implements AsynchronousScheduler {
         return result;
     }
 
-    /**
-     * <p>Determine the list of Tasks that the TaskScheduler is aware of.</p>
-     *
-     * @return Collection of all known Tasks in the TaskScheduler
-     */
+    @Override
+    public Optional<UUID> getUuidOfTaskByName(String name) {
+        return schedulerHelper.getUuidOfTaskByName(taskList, name);
+    }
+
+    @Override
+    public Collection<Task> getTasksByName(String pattern) {
+        return schedulerHelper.getfTasksByName(taskList, pattern);
+    }
+
     @Override
     public Collection<Task> getScheduledTasks() {
-
-        Collection<Task> taskCollection;
-        synchronized(this.taskList) {
-            taskCollection = new ArrayList<Task>(this.taskList);
-        }
-        return taskCollection;
+        return schedulerHelper.getScheduledTasks(taskList);
     }
 
-    /**
-     * <p>The query for Tasks owned by a target Plugin owner is found by testing
-     * the list of Tasks by testing the ID of each PluginContainer.<p>
-     *
-     * <p>If the PluginContainer passed to the method is not correct (invalid
-     * or null) then return a null reference.  Else, return a Collection of Tasks
-     * that are owned by the Plugin.</p>
-     * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @return Collection of Tasks owned by the PluginContainer plugin.
-     */
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {
-
-        // The argument is an Object so we have due diligence to perform...
-
-        // Owner is not a PluginContainer derived class
-        if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-
-            // The plugin owner was not valid, so the "Collection" is empty.
-            //(TODO) Perhaps we move this into using Optional<T> to make it explicit that
-            // Eg., the resulting Collection is NOT present vs. empty.
-
-            return null;
-        }
-
-        // The plugin owner is OK, so let's figure out which Tasks (if any) belong to it.
-        // The result Collection represents the Tasks that are owned by the plugin.  The list
-        // is non-null.  If no Tasks exists owned by the Plugin, return an empty Collection
-        // else return a Collection of Tasks.
-
-        PluginContainer testedOwner = (PluginContainer) plugin;
-        String testOwnerID = testedOwner.getId();
-        Collection<Task> subsetCollection;
-
-        synchronized(this.taskList) {
-            subsetCollection = new ArrayList<Task>(this.taskList);
-        }
-
-        Iterator<Task> it = subsetCollection.iterator();
-
-        while (it.hasNext()) {
-            String pluginId = ((PluginContainer) it.next()).getId();
-            if (!testOwnerID.equals(pluginId)) it.remove();
-        }
-
-        return subsetCollection;
-    }
-
-    /**
-     * The taskValidationStep is an internal method to validate the requested task.
-     *
-     * <p>The taskValidationStep looks at the requested Task, the parameters passed, and
-     * then if everything is OK, will proceed with creating a non-timestamped task.  The task
-     * isn't added to the List of tasks yet.  After the validation step, the Task merely exists
-     * loose unattached to any list.  Only the specific method to run a task will bind the task
-     * to the list and give it a timestamp.</p>
-     * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @param runnableTarget  The Runnable task authored by the developer using this Scheduler
-     * @param offset The time (in milliseconds) from when the Task is scheduled until it first runs, if any
-     * @param period The time between repeated scheduled invocations of the task, if any
-     * @return ScheduledTask  The ScheduledTask is the internal implementation of the Task managed by this Scheduler
-     */
-     ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
-
-        // No owner
-        if (plugin == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_NULL_WARNING);
-            return null;
-        } else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
-            // Owner is not a PluginContainer derived class
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-            return null;
-        }
-
-        // Is task a Runnable task?
-        if (runnableTarget == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.NULL_RUNNABLE_ARGUMENT_WARNING);
-            return null;
-        }
-
-        if ( offset < 0L ) {
-            SpongeMod.instance.getLogger().error(SchedulerLogMessages.DELAY_NEGATIVE_ERROR);
-            return null;
-        }
-
-        if ( period < 0L ) {
-            SpongeMod.instance.getLogger().error(SchedulerLogMessages.INTERVAL_NEGATIVE_ERROR);
-            return null;
-        }
-
-        // plugin is a PluginContainer
-        PluginContainer plugincontainer = (PluginContainer) plugin;
-
-        // The caller provided a valid PluginContainer owner and a valid Runnable task.
-        // Convert the arguments and store the Task for execution the next time the task
-        // list is checked. (this task is firing immediately)
-        // A task has at least three things to keep track:
-        //   The container that owns the task (pcont)
-        //   The Thread Body (Runnable) of the Task (task)
-        //   The Task Period (the time between firing the task.)   A default TaskTiming is zero (0) which
-        //    implies a One Time Shot (See Task interface).  Non zero Period means just that -- the time
-        //    in milliseconds between firing the event.   The "Period" argument to making a new
-        //    ScheduledTask is a Period interface intentionally so that
-
-        boolean SYNCHRONOUS = true;
-        return new ScheduledTask(offset, period, SYNCHRONOUS)
-                .setTimestamp(System.currentTimeMillis())
-                .setPluginContainer(plugincontainer)
-                .setRunnableBody(runnableTarget);
+        return schedulerHelper.getScheduledTasks(taskList, plugin);
     }
 
     boolean startTask(ScheduledTask task) {

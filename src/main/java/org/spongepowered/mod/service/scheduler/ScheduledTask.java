@@ -44,7 +44,7 @@ public class ScheduledTask implements Task {
     ScheduledTaskState state;
     UUID id;
     String name;
-    boolean bSynchronous;
+    Task.TaskSynchroncity syncType;
 
     // Internal Task state. Not for user-service use.
     enum ScheduledTaskState {
@@ -60,7 +60,7 @@ public class ScheduledTask implements Task {
     }
 
     // This c'tor is OK for internal Sponge use. APIs do not expose the c'tor.
-    ScheduledTask(long x, long t, boolean synchronous) {
+    ScheduledTask(long x, long t,  Task.TaskSynchroncity syncType) {
         // All tasks begin waiting.
         this.state = ScheduledTaskState.WAITING;
 
@@ -71,10 +71,7 @@ public class ScheduledTask implements Task {
         this.owner = null;
         this.runnableBody = null;
         this.id = UUID.randomUUID();
-        this.bSynchronous = synchronous;
-
-        // For now, the name is the UUID.  The implementation may change, but the API will stay intact.
-        this.name = this.id.toString();
+        this.syncType = syncType;
     }
 
     // Builder method
@@ -186,7 +183,12 @@ public class ScheduledTask implements Task {
 
     @Override
     public boolean isSynchronous() {
-        return bSynchronous;
+        return syncType == TaskSynchroncity.SYNCHRONOUS;
     }
 
+    @Override
+    public String setName(String name) {
+
+        return name;
+    }
 }

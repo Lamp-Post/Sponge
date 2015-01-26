@@ -27,16 +27,14 @@ package org.spongepowered.mod.service.scheduler;
 import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.scheduler.SchedulerQuery;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.Queue;
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -52,6 +50,10 @@ public class SyncScheduler implements SynchronousScheduler {
     // The internal counter of the number of Ticks elapsed since this Scheduler was listening for
     // ServerTickEvent from Forge.
     volatile long counter = 0L;
+    long sequenceNumber = 0L;
+
+    // Query actor for task information
+    SchedulerHelper schedulerHelper;
 
     /**
      * <p>
@@ -66,6 +68,32 @@ public class SyncScheduler implements SynchronousScheduler {
      * the Services Manager.</p>
      */
     private SyncScheduler() {
+        schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.SYNCHRONOUS);
+    }
+
+    @Override
+    public Optional<Task> getTaskById(UUID id) {
+        return schedulerHelper.getTaskById(taskList, id);
+    }
+
+    @Override
+    public Optional<UUID> getUuidOfTaskByName(String name) {
+        return schedulerHelper.getUuidOfTaskByName(taskList, name);
+    }
+
+    @Override
+    public Collection<Task> getTasksByName(String pattern) {
+        return schedulerHelper.getfTasksByName(taskList, pattern);
+    }
+
+    @Override
+    public Collection<Task> getScheduledTasks() {
+        return schedulerHelper.getScheduledTasks(taskList);
+    }
+
+    @Override
+    public Collection<Task> getScheduledTasks(Object plugin) {
+        return schedulerHelper.getScheduledTasks(taskList, plugin);
     }
 
     /**
@@ -170,13 +198,6 @@ public class SyncScheduler implements SynchronousScheduler {
         }
     }
 
-    Optional<Task> utilityForAddingTask(ScheduledTask task) {
-        Optional<Task> result = Optional.absent();
-        this.taskList.add(task);
-        result = Optional.of((Task) task);
-        return result;
-    }
-
     /**
      * <p>Runs a Task once immediately.</p>
      *
@@ -211,12 +232,13 @@ public class SyncScheduler implements SynchronousScheduler {
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(nonRepeatingTask);
+            result = schedulerHelper.utilityForAddingTask(taskList, nonRepeatingTask);
         }
 
         return result;
@@ -254,12 +276,13 @@ public class SyncScheduler implements SynchronousScheduler {
         Optional<Task> result = Optional.absent();
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(nonRepeatingTask);
+            result = schedulerHelper.utilityForAddingTask(taskList, nonRepeatingTask);
         }
 
         return result;
@@ -307,12 +330,13 @@ public class SyncScheduler implements SynchronousScheduler {
         Optional<Task> result = Optional.absent();
         final long NODELAY = 0L;
 
-        ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, interval);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(repeatingTask);
+            result = schedulerHelper.utilityForAddingTask(taskList, repeatingTask);
         }
 
         return result;
@@ -361,156 +385,16 @@ public class SyncScheduler implements SynchronousScheduler {
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
         Optional<Task> result = Optional.absent();
-
-        ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, delay, interval);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            result = utilityForAddingTask(repeatingTask);
+            result = schedulerHelper.utilityForAddingTask(taskList, repeatingTask);
         }
 
         return result;
-    }
-
-    /**
-     * <p>
-     * Start a repeating Task with a period (interval) of Ticks.  The first occurrence
-     * will start after an initial delay.</p>
-     *
-     * <p>Example code to use the method:</p>
-     *
-     * <p>
-     * <code>
-     *     UUID myID;
-     *     // ...
-     *     Optional&lt;Task&gt; task;
-     *     task = SyncScheduler.getInstance().getTaskById(myID); 
-     * </code>
-     * </p>
-     *
-     * @param id The UUID of the Task to find.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the existing Task.
-     */
-    @Override
-    public Optional<Task> getTaskById(UUID id) {
-        Optional<Task> result = Optional.absent();
-        for (ScheduledTask t : taskList) {
-            if ( id.equals ( t.id) ) {
-                return Optional.of ( (Task) t);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * <p>Determine the list of Tasks that the TaskScheduler is aware of.</p>
-     *
-     * @return Collection&lt;Task&gt; of all known Tasks in the TaskScheduler
-     */
-    @Override
-    public Collection<Task> getScheduledTasks() {
-        Collection<Task> taskCollection;
-        synchronized(this.taskList) {
-            taskCollection = new ArrayList<Task>(this.taskList);
-        }
-        return taskCollection;
-    }
-
-    /**
-     * <p>The query for Tasks owned by a target Plugin owner is found by testing
-     * the list of Tasks by testing the ID of each PluginContainer.</p>
-     *
-     * <p>If the PluginContainer passed to the method is not correct (invalid
-     * or null) then return a null reference.  Else, return a Collection of Tasks
-     * that are owned by the Plugin.</p>
-     * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer plugin.
-     */
-    @Override
-    public Collection<Task> getScheduledTasks(Object plugin) {
-
-        // The argument is an Object so we have due diligence to perform...
-        // Owner is not a PluginContainer derived class
-        if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-            // The plugin owner was not valid, so the "Collection" is empty.
-            //(TODO) Perhaps we move this into using Optional<T> to make it explicit that
-            // Eg., the resulting Collection is NOT present vs. empty.
-            return null;
-        }
-
-        // The plugin owner is OK, so let's figure out which Tasks (if any) belong to it.
-        // The result Collection represents the Tasks that are owned by the plugin.  The list
-        // is non-null.  If no Tasks exists owned by the Plugin, return an empty Collection
-        // else return a Collection of Tasks.
-
-        PluginContainer testedOwner = (PluginContainer) plugin;
-        String testOwnerID = testedOwner.getId();
-        Collection<Task> subsetCollection;
-
-        synchronized(this.taskList) {
-            subsetCollection = new ArrayList<Task>(this.taskList);
-        }
-
-        Iterator<Task> it = subsetCollection.iterator();
-
-        while (it.hasNext()) {
-            String pluginId = ((PluginContainer) it.next()).getId();
-            if (!testOwnerID.equals(pluginId)) it.remove();
-        }
-
-        return subsetCollection;
-    }
-
-    // offset and period are in milliseconds (unless the Synchronicity of the Task is SYNCHRONOUS)
-    ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
-
-        // No owner
-        if (plugin == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_NULL_WARNING);
-            return null;
-        }  else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
-            // Owner is not a PluginContainer derived class
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-            return null;
-        }
-
-        // Is task a Runnable task?
-        if (runnableTarget == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.NULL_RUNNABLE_ARGUMENT_WARNING);
-            return null;
-        }
-
-        if ( offset < 0L ) {
-            SpongeMod.instance.getLogger().error(SchedulerLogMessages.DELAY_NEGATIVE_ERROR);
-            return null;
-        }
-
-        if ( period < 0L ) {
-            SpongeMod.instance.getLogger().error(SchedulerLogMessages.INTERVAL_NEGATIVE_ERROR);
-            return null;
-        }
-
-        // plugin is a PluginContainer
-        PluginContainer plugincontainer = (PluginContainer) plugin;
-
-        // The caller provided a valid PluginContainer owner and a valid Runnable task.
-        // Convert the arguments and store the Task for execution the next time the task
-        // list is checked. (this task is firing immediately)
-        // A task has at least three things to keep track:
-        //   The container that owns the task (pcont)
-        //   The Thread Body (Runnable) of the Task (task)
-        //   The Task Period (the time between firing the task.)   A default TaskTiming is zero (0) which
-        //    implies a One Time Shot (See Task interface).  Non zero Period means just that -- the time
-        //    in milliseconds between firing the event.   The "Period" argument to making a new
-        //    ScheduledTask is a Period interface intentionally so that
-
-        boolean ASYNCHRONOUS = false;
-        return new ScheduledTask(offset, period, ASYNCHRONOUS)
-                .setTimestamp(counter)
-                .setPluginContainer(plugincontainer)
-                .setRunnableBody(runnableTarget);
     }
 
     boolean startTask(ScheduledTask task) {

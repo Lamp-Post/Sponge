@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,19 +28,23 @@ import org.spongepowered.api.text.chat.ChatType;
 
 public class SpongeChatType implements ChatType {
 
-    private String name;
-    private byte id;
+    private final byte id;
 
-    public SpongeChatType(String name, byte id) {
-        this.name = name;
+    public SpongeChatType(byte id) {
         this.id = id;
     }
 
-    public byte getId() {
-        return this.id;
+    @Override
+    public String getId() {
+        return "minecraft:" + this.id;
     }
 
+    @Override
     public String getName() {
-        return this.name;
+        return getId(); // todo actually pick up a name
+    }
+
+    public byte getByteId() {
+        return this.id;
     }
 }

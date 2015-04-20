@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.status;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+
 import net.minecraft.network.ServerStatusResponse;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.api.MinecraftVersion;
@@ -32,20 +34,22 @@ import org.spongepowered.api.event.server.StatusPingEvent;
 import org.spongepowered.api.status.StatusClient;
 import org.spongepowered.api.status.StatusResponse;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.text.SpongeText;
 
 import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
 
 public final class SpongeStatusResponse {
 
-    private SpongeStatusResponse() {}
+    private SpongeStatusResponse() {
+    }
 
     public static ServerStatusResponse post(MinecraftServer server, StatusClient client) {
         return call(create(server), client);
     }
 
     public static ServerStatusResponse postLegacy(MinecraftServer server, InetSocketAddress address, MinecraftVersion version,
-                                                  InetSocketAddress virtualHost) {
+            InetSocketAddress virtualHost) {
         ServerStatusResponse response = create(server);
         response.setProtocolVersionInfo(
                 new ServerStatusResponse.MinecraftProtocolVersionIdentifier(response.getProtocolVersionInfo().getName(), Byte.MAX_VALUE));
@@ -58,7 +62,7 @@ public final class SpongeStatusResponse {
 
     private static ServerStatusResponse call(ServerStatusResponse response, StatusClient client) {
         if (!SpongeMod.instance.getGame().getEventManager().post(SpongeEventFactory.createStatusPing(SpongeMod.instance.getGame(), client,
-                                                                                                     (StatusPingEvent.Response) response))) {
+                (StatusPingEvent.Response) response))) {
             return response;
         } else {
             return null;
@@ -83,7 +87,7 @@ public final class SpongeStatusResponse {
 
     private static ServerStatusResponse.PlayerCountData clone(ServerStatusResponse.PlayerCountData original) {
         ServerStatusResponse.PlayerCountData clone = new ServerStatusResponse.PlayerCountData(original.getMaxPlayers(),
-                                                                                              original.getOnlinePlayerCount());
+                original.getOnlinePlayerCount());
         clone.setPlayers(original.getPlayers());
         return clone;
     }
@@ -102,7 +106,7 @@ public final class SpongeStatusResponse {
         return getFirstLine(response.getServerDescription().getUnformattedText());
     }
 
-    private static final Pattern STRIP_FORMATTING = Pattern.compile("(?i)\u00a7[0-9A-FK-OR]?");
+    private static final Pattern STRIP_FORMATTING = Pattern.compile(SpongeText.COLOR_CHAR + "[0-9A-FK-OR]?", CASE_INSENSITIVE);
 
     public static String getUnformattedMotd(ServerStatusResponse response) {
         return getFirstLine(STRIP_FORMATTING.matcher(response.getServerDescription().getUnformattedText()).replaceAll(""));

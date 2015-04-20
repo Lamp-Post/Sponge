@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,12 +29,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import net.minecraft.village.MerchantRecipe;
-
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
-
-import java.lang.reflect.Field;
 
 public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
 
@@ -44,16 +41,6 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
     private int useCount;
     private int maxUses;
     private boolean allowsExperience;
-    private static final Field field_180323_f;
-
-    static {
-        try {
-            field_180323_f = MerchantRecipe.class.getDeclaredField("field_180323_f");
-            field_180323_f.setAccessible(true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public SpongeTradeOfferBuilder() {
         reset();
@@ -107,16 +94,12 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
         MerchantRecipe recipe =
                 new MerchantRecipe((net.minecraft.item.ItemStack) this.firstItem, (net.minecraft.item.ItemStack) this.secondItem,
                         (net.minecraft.item.ItemStack) this.sellingItem, this.useCount, this.maxUses);
-        try {
-            field_180323_f.setBoolean(recipe, this.allowsExperience);
-        } catch (Exception ignored) {
-            // No can do
-        }
+        recipe.rewardsExp = this.allowsExperience;
         return (TradeOffer) recipe;
     }
 
     @Override
-    public TradeOfferBuilder fromTradeOffer(TradeOffer offer) {
+    public TradeOfferBuilder from(TradeOffer offer) {
         checkNotNull(offer, "Trade offer cannot be null");
         // Assumes the offer's values don't need to be validated
         this.firstItem = offer.getFirstBuyingItem();

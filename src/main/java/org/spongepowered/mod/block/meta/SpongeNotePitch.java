@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.data.types.NotePitch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault
@@ -39,8 +39,8 @@ public class SpongeNotePitch implements NotePitch {
     }
 
     @Override
-    public byte getId() {
-        return this.id;
+    public String getId() {
+        return this.name;
     }
 
     @Override

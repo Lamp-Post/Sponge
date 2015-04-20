@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,40 +25,63 @@
 package org.spongepowered.mod.plugin;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
 
 import java.util.Collection;
+import java.util.List;
 
 @NonnullByDefault
 public class SpongePluginManager implements PluginManager {
+    private static final PluginContainer MINECRAFT_CONTAINER = new WrappedModContainer(Loader.instance().getMinecraftModContainer());
 
     @Override
     public Optional<PluginContainer> getPlugin(String s) {
-        return Optional.fromNullable(SpongeMod.instance.getPlugin(s));
+        if (s.equalsIgnoreCase(MINECRAFT_CONTAINER.getId())) {
+            return Optional.of((PluginContainer) Loader.instance().getMinecraftModContainer());
+        } else {
+            ModContainer container = Loader.instance().getIndexedModList().get(s);
+            if (container == null) {
+                for (ModContainer mod : Loader.instance().getModList()) {
+                    if (mod.getModId().equalsIgnoreCase(s)) {
+                        container = mod;
+                        break;
+                    }
+                }
+            }
+            return Optional.fromNullable((PluginContainer) container);
+        }
     }
 
     @Override
     public Logger getLogger(PluginContainer pluginContainer) {
-        return LoggerFactory.getLogger(pluginContainer.getName());
+        return LoggerFactory.getLogger(pluginContainer.getId());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
+        return (ImmutableSet) ImmutableSet.builder().add(Loader.instance().getMinecraftModContainer()).addAll((List) Loader.instance().getActiveModList()).build();
     }
 
     @Override
     public Optional<PluginContainer> fromInstance(Object instance) {
-        return Optional.fromNullable(SpongeMod.instance.getPluginContainer(instance));
+        if (instance instanceof PluginContainer) {
+            return Optional.of((PluginContainer) instance);
+        } else if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
+            return getPlugin(((ModContainer) instance).getModId());
+        }
+        return Optional.fromNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
     }
 
     @Override
     public boolean isLoaded(String s) {
-        return SpongeMod.instance.getPlugin(s) != null;
+        return s.equalsIgnoreCase(MINECRAFT_CONTAINER.getId()) || Loader.isModLoaded(s);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,11 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.event;
 
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.event.Order;
 
 class RegisteredHandler implements Comparable<RegisteredHandler> {
 
@@ -38,6 +37,10 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
         this.handler = handler;
         this.order = order;
         this.container = container;
+    }
+
+    static RegisteredHandler createForComparison(Handler handler) {
+        return new RegisteredHandler(handler, null, null);
     }
 
     public Handler getHandler() {
@@ -54,8 +57,12 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RegisteredHandler that = (RegisteredHandler) o;
         return this.handler.equals(that.handler);
     }
@@ -68,10 +75,6 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
     @Override
     public int compareTo(RegisteredHandler o) {
         return getOrder().ordinal() - o.getOrder().ordinal();
-    }
-
-    static RegisteredHandler createForComparison(Handler handler) {
-        return new RegisteredHandler(handler, null, null);
     }
 
 }

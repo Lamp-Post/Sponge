@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,16 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.event;
-
-import javax.annotation.Nullable;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -45,18 +36,24 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
-
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.event.EventManager;
-import org.spongepowered.api.util.event.Cancellable;
-import org.spongepowered.api.util.event.Event;
-import org.spongepowered.api.util.event.Order;
-import org.spongepowered.api.util.event.Subscribe;
 import org.spongepowered.mod.SpongeMod;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Nullable;
 
 public class SpongeEventBus implements EventManager {
 
@@ -68,11 +65,14 @@ public class SpongeEventBus implements EventManager {
     /**
      * A cache of all the handlers for an event type for quick event posting.
      *
-     * <p>The cache is currently entirely invalidated if handlers are added
-     * or removed.</p>
+     * <p>
+     * The cache is currently entirely invalidated if handlers are added or
+     * removed.
+     * </p>
      */
     private final LoadingCache<Class<?>, HandlerCache> handlersCache =
             CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, HandlerCache>() {
+
                 @Override
                 public HandlerCache load(Class<?> type) throws Exception {
                     return bakeHandlers(type);
@@ -93,7 +93,17 @@ public class SpongeEventBus implements EventManager {
         this.pluginManager = pluginManager;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static boolean isValidHandler(Method method) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        return !Modifier.isStatic(method.getModifiers())
+                && !Modifier.isAbstract(method.getModifiers())
+                && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
+                && method.getReturnType() == void.class
+                && paramTypes.length == 1
+                && Event.class.isAssignableFrom(paramTypes[0]);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private HandlerCache bakeHandlers(Class<?> rootType) {
         List<RegisteredHandler> registrations = Lists.newArrayList();
         Set<Class<?>> types = (Set) TypeToken.of(rootType).getTypes().rawTypes();
@@ -121,7 +131,8 @@ public class SpongeEventBus implements EventManager {
         Class<?> type = object.getClass();
 
         for (Method method : type.getMethods()) {
-            @Nullable Subscribe subscribe = method.getAnnotation(Subscribe.class);
+            @Nullable
+            Subscribe subscribe = method.getAnnotation(Subscribe.class);
 
             if (subscribe != null) {
                 Class<?>[] paramTypes = method.getParameterTypes();
@@ -146,6 +157,26 @@ public class SpongeEventBus implements EventManager {
 
     public boolean register(Subscriber subscriber, PluginContainer container) {
         return registerAll(Lists.newArrayList(subscriber), container);
+    }
+
+    public void register(PluginContainer container, Object object) {
+        checkNotNull(container, "plugin");
+        checkNotNull(object, "object");
+
+        registerAll(findAllSubscribers(object), container);
+    }
+
+    @Override
+    public void register(Object plugin, Object object) {
+        checkNotNull(plugin, "plugin");
+        checkNotNull(object, "object");
+
+        Optional<PluginContainer> container = this.pluginManager.fromInstance(plugin);
+        if (!container.isPresent()) {
+            throw new IllegalArgumentException("The specified object is not a plugin object");
+        }
+
+        registerAll(findAllSubscribers(object), container.get());
     }
 
     private boolean registerAll(List<Subscriber> subscribers, PluginContainer container) {
@@ -174,6 +205,12 @@ public class SpongeEventBus implements EventManager {
         return unregisterAll(Lists.newArrayList(subscriber));
     }
 
+    @Override
+    public void unregister(Object object) {
+        checkNotNull(object, "object");
+        unregisterAll(findAllSubscribers(object));
+    }
+
     public boolean unregisterAll(List<Subscriber> subscribers) {
         synchronized (this.lock) {
             boolean changed = false;
@@ -200,45 +237,26 @@ public class SpongeEventBus implements EventManager {
         }
     }
 
-    @Override
-    public void register(Object plugin, Object object) {
-        checkNotNull(plugin, "plugin");
-        checkNotNull(object, "object");
-
-        Optional<PluginContainer> container = this.pluginManager.fromInstance(plugin);
-        if (!container.isPresent()) {
-            throw new IllegalArgumentException("The specified object is not a plugin object");
-        }
-
-        registerAll(findAllSubscribers(object), container.get());
-    }
-
-    @Override
-    public void unregister(Object object) {
-        checkNotNull(object, "object");
-        unregisterAll(findAllSubscribers(object));
-    }
-
     public boolean post(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
         checkNotNull(forgeEvent, "forgeEvent");
 
         Order orderStart = Order.PRE;
         HandlerCache handlerCache = getHandlerCache(forgeEvent.getClass());
 
-        for (int index = 0; index < listeners.length; index++) {
-            if (listeners[index] instanceof EventPriority) {
-                Order order = this.priorityMappings.get((EventPriority)listeners[index]);
+        for (IEventListener listener : listeners) {
+            if (listener instanceof EventPriority) {
+                Order order = this.priorityMappings.get(listener);
 
                 for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
                     Order currentOrder = Order.values()[orderIndex];
                     for (Handler handler : handlerCache.getHandlersByOrder(currentOrder)) {
-                        callListener(handler, (Event)forgeEvent);
+                        callListener(handler, (Event) forgeEvent);
                     }
                 }
                 orderStart = Order.values()[order.ordinal() + 1];
             }
             try {
-               listeners[index].invoke(forgeEvent);
+                listener.invoke(forgeEvent);
             } catch (Throwable throwable) {
                 SpongeMod.instance.getLogger().catching(throwable);
             }
@@ -247,11 +265,11 @@ public class SpongeEventBus implements EventManager {
         for (int orderIndex = orderStart.ordinal(); orderIndex <= Order.POST.ordinal(); orderIndex++) {
             Order currentOrder = Order.values()[orderIndex];
             for (Handler handler : handlerCache.getHandlersByOrder(currentOrder)) {
-                callListener(handler, (Event)forgeEvent);
+                callListener(handler, (Event) forgeEvent);
             }
         }
 
-        return (forgeEvent.isCancelable() ? forgeEvent.isCanceled() : false);
+        return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 
     @Override
@@ -274,16 +292,6 @@ public class SpongeEventBus implements EventManager {
         }
 
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
-    }
-
-    private static boolean isValidHandler(Method method) {
-        Class<?>[] paramTypes = method.getParameterTypes();
-        return !Modifier.isStatic(method.getModifiers())
-                && !Modifier.isAbstract(method.getModifiers())
-                && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
-                && method.getReturnType() == void.class
-                && paramTypes.length == 1
-                && Event.class.isAssignableFrom(paramTypes[0]);
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,12 +24,14 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.service.persistence.DataSource;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import static org.spongepowered.api.data.DataQuery.of;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
+import org.spongepowered.api.CatalogType;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 
-public class SpongeEntityMeta  {
+public class SpongeEntityMeta implements CatalogType {
 
     public final int type;
     public final String name;
@@ -39,6 +41,12 @@ public class SpongeEntityMeta  {
         this.name = name;
     }
 
+    @Override
+    public String getId() {
+        return this.name;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }
@@ -51,29 +59,27 @@ public class SpongeEntityMeta  {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        SpongeEntityMeta other = (SpongeEntityMeta)obj;
+        SpongeEntityMeta other = (SpongeEntityMeta) obj;
         if (this.type != other.type) {
             return false;
-        } else if (this.name != other.name) {
+        } else if (!this.name.equals(other.name)) {
             return false;
         }
         return true;
     }
 
     public DataContainer toContainer() {
-        // TODO
-        return null;
-    }
-
-    public void serialize(DataSource source) {
-        // TODO
+        DataContainer container = new MemoryDataContainer();
+        container.set(of("id"), this.type);
+        container.set(of("name"), this.name);
+        return container;
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("type", this.type)
-            .add("name", this.name)
-            .toString();
+        return MoreObjects.toStringHelper(this)
+                .add("type", this.type)
+                .add("name", this.name)
+                .toString();
     }
 }

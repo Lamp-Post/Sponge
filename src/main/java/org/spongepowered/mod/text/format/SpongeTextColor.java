@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,22 +24,38 @@
  */
 package org.spongepowered.mod.text.format;
 
-import java.awt.Color;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import net.minecraft.util.EnumChatFormatting;
-
 import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
+import java.awt.Color;
+
+@NonnullByDefault
 public class SpongeTextColor implements TextColor.Base {
 
-    private Color color;
-    private String name;
-    private EnumChatFormatting handle;
+    private final EnumChatFormatting handle;
+    private final Color color;
 
-    public SpongeTextColor(Color color, EnumChatFormatting format) {
-        this.color = color;
-        this.handle = format;
-        this.name = format.getFriendlyName();
+    @Override
+    public String getId() {
+        return this.handle.name();
+    }
+
+    public SpongeTextColor(EnumChatFormatting handle, Color color) {
+        this.handle = checkNotNull(handle, "handle");
+        this.color = checkNotNull(color, "color");
+    }
+
+    public EnumChatFormatting getHandle() {
+        return this.handle;
+    }
+
+    @Override
+    public String getName() {
+        return this.handle.getFriendlyName();
     }
 
     @Override
@@ -48,24 +64,18 @@ public class SpongeTextColor implements TextColor.Base {
     }
 
     @Override
-    public boolean isReset() {
-        return this.color == Color.WHITE;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    public EnumChatFormatting getHandle() {
-        return this.handle;
-    }
-
-    @Override
     @Deprecated
     public char getCode() {
-        // TODO
-        return 0;
+        return this.handle.formattingCode;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    public static SpongeTextColor of(EnumChatFormatting color) {
+        return SpongeGameRegistry.enumChatColor.get(color);
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,12 +25,13 @@
 package org.spongepowered.mod.text.translation;
 
 import net.minecraft.util.StatCollector;
-
 import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 
+@NonnullByDefault
 public class SpongeTranslation implements Translation {
 
-    private String id;
+    private final String id;
 
     public SpongeTranslation(String id) {
         this.id = id;
@@ -48,7 +49,7 @@ public class SpongeTranslation implements Translation {
 
     @Override
     public String get(Object... args) {
-        return String.format(get());
+        return StatCollector.translateToLocalFormatted(this.id, args);
     }
 
 }

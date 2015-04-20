@@ -1,4 +1,4 @@
-Sponge [![Build Status](https://travis-ci.org/SpongePowered/Sponge.png?branch=master)](https://travis-ci.org/SpongePowered/Sponge)
+Sponge [![Build Status](https://travis-ci.org/SpongePowered/Sponge.svg?branch=master)](https://travis-ci.org/SpongePowered/Sponge)
 =============
 **Currently not stable and under heavy development!**  
 A Forge implementation of the Sponge API. It is licensed under the [MIT License]. 
@@ -59,7 +59,7 @@ __Client__
 |     Property      | Value                                     |
 |:-----------------:|:------------------------------------------|
 |    Main class     | GradleStart                               |
-|    VM options     | -Djava.library.path="../../build/natives" -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
+|    VM options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
 | Working directory | ./run/client (Included in project)        |
 | Module classpath  | Sponge (IntelliJ Only)                    |
 

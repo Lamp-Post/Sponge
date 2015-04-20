@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,6 +39,16 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
         this.protocol = protocol;
     }
 
+    public static int compare(ProtocolMinecraftVersion version, MinecraftVersion to) {
+        if (version.equals(to)) {
+            return 0;
+        } else if (to.isLegacy()) {
+            return 1;
+        } else {
+            return version.getProtocol() - ((ProtocolMinecraftVersion) to).getProtocol();
+        }
+    }
+
     @Override
     public String getName() {
         return this.name;
@@ -64,12 +74,12 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SpongeMinecraftVersion)) {
+        if (!(o instanceof ProtocolMinecraftVersion)) {
             return false;
         }
 
-        SpongeMinecraftVersion that = (SpongeMinecraftVersion) o;
-        return this.protocol == that.protocol;
+        ProtocolMinecraftVersion that = (ProtocolMinecraftVersion) o;
+        return this.getProtocol() == that.getProtocol();
 
     }
 
@@ -84,10 +94,5 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
                 .add("name", this.name)
                 .add("protocol", this.protocol)
                 .toString();
-    }
-
-    public static int compare(ProtocolMinecraftVersion version, MinecraftVersion to) {
-        if (version == to) return 0;
-        return to.isLegacy() ? 1 : version.getProtocol() - ((ProtocolMinecraftVersion) to).getProtocol();
     }
 }

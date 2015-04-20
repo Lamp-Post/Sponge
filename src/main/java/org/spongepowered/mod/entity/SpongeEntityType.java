@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,12 +24,11 @@
  */
 package org.spongepowered.mod.entity;
 
+import com.google.common.base.MoreObjects;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
-
 import org.spongepowered.api.entity.EntityType;
-
-import com.google.common.base.Objects;
+import org.spongepowered.api.text.translation.Translation;
 
 public class SpongeEntityType implements EntityType {
 
@@ -42,21 +41,18 @@ public class SpongeEntityType implements EntityType {
     public int updateFrequency;
     public boolean sendsVelocityUpdates;
 
-    public SpongeEntityType(int id, String name, Class<? extends Entity> clazz)
-    {
-        this(id, name, "minecraft", clazz);
+    public SpongeEntityType(int id, String name, Class<? extends Entity> clazz) {
+        this(id, name.toLowerCase(), "minecraft", clazz);
     }
 
-    public SpongeEntityType(int id, String name, String modId, Class<? extends Entity> clazz)
-    {
+    public SpongeEntityType(int id, String name, String modId, Class<? extends Entity> clazz) {
         this.entityTypeId = id;
-        this.entityName = name;
+        this.entityName = name.toLowerCase();
         this.entityClass = clazz;
-        this.modId = modId;
+        this.modId = modId.toLowerCase();
     }
 
-    public SpongeEntityType(EntityRegistration entityRegistration)
-    {
+    public SpongeEntityType(EntityRegistration entityRegistration) {
         this.entityTypeId = entityRegistration.getModEntityId();
         this.entityName = entityRegistration.getEntityName();
         this.entityClass = entityRegistration.getEntityClass();
@@ -66,6 +62,19 @@ public class SpongeEntityType implements EntityType {
     @Override
     public String getId() {
         return this.modId + ":" + this.entityName;
+    }
+
+    @Override
+    public String getName() {
+        return this.entityName;
+    }
+
+    public String getEntityName() {
+        return this.entityName;
+    }
+
+    public String getModId() {
+        return this.modId;
     }
 
     @SuppressWarnings("unchecked")
@@ -100,12 +109,16 @@ public class SpongeEntityType implements EntityType {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("id", this.entityTypeId)
-            .add("name", this.entityTypeId)
-            .add("modid", this.modId)
-            .add("class", this.entityClass.getName())
-            .toString();
+        return MoreObjects.toStringHelper(this)
+                .add("id", this.entityTypeId)
+                .add("name", this.entityTypeId)
+                .add("modid", this.modId)
+                .add("class", this.entityClass.getName())
+                .toString();
     }
 
+    @Override
+    public Translation getTranslation() {
+        return null;
+    }
 }

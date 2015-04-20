@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,36 +25,70 @@
 package org.spongepowered.mod.util;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3f;
 import com.flowpowered.math.vector.Vector3i;
-
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Rotations;
+import net.minecraft.util.Vec3;
 import net.minecraft.util.Vec3i;
 
 public final class VecHelper {
 
-    // === Flow Vector --> BlockPos ===
+    // === Flow Vector3d --> BlockPos ===
 
     public static BlockPos toBlockPos(Vector3d vector) {
         return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
     }
 
-    // === Flow Vector --> Rotations ===
+    // === Flow Vector3i --> BlockPos ===
 
-    public static Rotations toRotation(Vector3f vector) {
-        return new Rotations(vector.getX(), vector.getY(), vector.getZ());
+    public static BlockPos toBlockPos(Vector3i vector) {
+        return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === MC BlockPos --> Flow Vector3i ==
+
+    public static Vector3i toVector(BlockPos pos) {
+        return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    // === MC BlockPos --> Flow Vector3d ==
+
+    public static Vector3d toVector3d(BlockPos pos) {
+        return new Vector3d(pos.getX(), pos.getY(), pos.getZ());
     }
 
     // === Rotations --> Flow Vector ===
 
-    public static Vector3f toVector(Rotations rotation) {
-        return new Vector3f(rotation.func_179415_b(), rotation.func_179416_c(), rotation.func_179413_d());
+    public static Vector3d toVector(Rotations rotation) {
+        return new Vector3d(rotation.getX(), rotation.getY(), rotation.getZ());
     }
 
-    // === MC Vector --> Flow Vector ===
+    // === MC Vec3i --> Flow Vector3i ===
 
     public static Vector3i toVector(Vec3i vector) {
         return new Vector3i(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === Flow Vector3i --> MC Vec3i ===
+
+    public static Vec3i toVector(Vector3i vector) {
+        return new Vec3i(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === MC Vec3 --> flow Vector3d ==
+
+    public static Vector3d toVector(Vec3 vector) {
+        return new Vector3d(vector.xCoord, vector.yCoord, vector.zCoord);
+    }
+
+    // === Flow Vector3d --> MC Vec3 ==
+
+    public static Vec3 toVector(Vector3d vector) {
+        return new Vec3(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === Flow Vector --> Rotations ===
+    public static Rotations toRotation(Vector3d vector) {
+        return new Rotations((float) vector.getX(), (float) vector.getY(), (float) vector.getZ());
     }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.event.Order;
 
 public class PriorityEventListener<T> implements EventListener<T>, Comparable<PriorityEventListener<T>> {
 

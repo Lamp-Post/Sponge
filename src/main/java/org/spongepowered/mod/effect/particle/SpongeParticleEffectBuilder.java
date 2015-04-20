@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,24 +24,23 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.item.Item;
-
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import com.flowpowered.math.vector.Vector3f;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import java.awt.Color;
 
 public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
+
     protected final SpongeParticleType type;
 
-    protected Vector3f motion = Vector3f.ZERO;
-    protected Vector3f offset = Vector3f.ZERO;
+    protected Vector3d motion = Vector3d.ZERO;
+    protected Vector3d offset = Vector3d.ZERO;
 
     protected int count = 1;
 
@@ -50,15 +49,15 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     @Override
-    public SpongeParticleEffectBuilder motion(Vector3f motion) {
-        checkNotNull(motion, "The motion vector cannot be null! Use Vector3f.ZERO instead!");
+    public SpongeParticleEffectBuilder motion(Vector3d motion) {
+        checkNotNull(motion, "The motion vector cannot be null! Use Vector3d.ZERO instead!");
         this.motion = motion;
         return this;
     }
 
     @Override
-    public SpongeParticleEffectBuilder offset(Vector3f offset) {
-        checkNotNull(offset, "The offset vector cannot be null! Use Vector3f.ZERO instead!");
+    public SpongeParticleEffectBuilder offset(Vector3d offset) {
+        checkNotNull(offset, "The offset vector cannot be null! Use Vector3d.ZERO instead!");
         this.offset = offset;
         return this;
     }
@@ -76,6 +75,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderColorable extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Colorable {
+
         private Color color;
 
         public BuilderColorable(SpongeParticleType.Colorable type) {
@@ -91,12 +91,12 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderColorable motion(Vector3f motion) {
+        public BuilderColorable motion(Vector3d motion) {
             return (BuilderColorable) super.motion(motion);
         }
 
         @Override
-        public BuilderColorable offset(Vector3f motion) {
+        public BuilderColorable offset(Vector3d motion) {
             return (BuilderColorable) super.offset(motion);
         }
 
@@ -113,6 +113,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderResizable extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Resizable {
+
         private float size;
 
         public BuilderResizable(SpongeParticleType.Resizable type) {
@@ -128,12 +129,12 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderResizable motion(Vector3f motion) {
+        public BuilderResizable motion(Vector3d motion) {
             return (BuilderResizable) super.motion(motion);
         }
 
         @Override
-        public BuilderResizable offset(Vector3f offset) {
+        public BuilderResizable offset(Vector3d offset) {
             return (BuilderResizable) super.offset(offset);
         }
 
@@ -150,6 +151,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderNote extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Note {
+
         private float note;
 
         public BuilderNote(SpongeParticleType.Note type) {
@@ -165,12 +167,12 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderNote motion(Vector3f motion) {
+        public BuilderNote motion(Vector3d motion) {
             return (BuilderNote) super.motion(motion);
         }
 
         @Override
-        public BuilderNote offset(Vector3f offset) {
+        public BuilderNote offset(Vector3d offset) {
             return (BuilderNote) super.offset(offset);
         }
 
@@ -187,6 +189,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderMaterial extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Material {
+
         private ItemStack item;
 
         public BuilderMaterial(SpongeParticleType.Material type) {
@@ -209,12 +212,12 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderMaterial motion(Vector3f motion) {
+        public BuilderMaterial motion(Vector3d motion) {
             return (BuilderMaterial) super.motion(motion);
         }
 
         @Override
-        public BuilderMaterial offset(Vector3f offset) {
+        public BuilderMaterial offset(Vector3d offset) {
             return (BuilderMaterial) super.offset(offset);
         }
 

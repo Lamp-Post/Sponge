@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,11 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.util.event.Cancellable;
-import org.spongepowered.api.util.event.Event;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.Event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,6 +38,7 @@ class InvokeHandlerFactory implements HandlerFactory {
     }
 
     private static class InvokeHandler implements Handler {
+
         private final Object object;
         private final Method method;
         private final boolean ignoreCancelled;
@@ -63,13 +63,21 @@ class InvokeHandlerFactory implements HandlerFactory {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             InvokeHandler that = (InvokeHandler) o;
 
-            if (!this.method.equals(that.method)) return false;
-            if (!this.object.equals(that.object)) return false;
+            if (!this.method.equals(that.method)) {
+                return false;
+            }
+            if (!this.object.equals(that.object)) {
+                return false;
+            }
 
             return true;
         }

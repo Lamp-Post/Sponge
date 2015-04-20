@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,28 +24,33 @@
  */
 package org.spongepowered.mod.world;
 
+import com.google.common.base.MoreObjects;
 import net.minecraft.world.WorldProvider;
-
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
-
-import com.google.common.base.Objects;
 
 public class SpongeDimensionType implements DimensionType {
 
     private String name;
+    private int dimensionTypeId;
     private boolean keepLoaded;
     private Class<? extends WorldProvider> dimensionClass;
 
-    public SpongeDimensionType(String name, boolean keepLoaded, Class<? extends WorldProvider> dimensionClass) {
+    public SpongeDimensionType(String name, boolean keepLoaded, Class<? extends WorldProvider> dimensionClass, int id) {
         this.name = name;
         this.keepLoaded = keepLoaded;
         this.dimensionClass = dimensionClass;
+        this.dimensionTypeId = id;
     }
 
     @Override
     public boolean doesKeepSpawnLoaded() {
         return this.keepLoaded;
+    }
+
+    @Override
+    public String getId() {
+        return this.name;
     }
 
     @Override
@@ -56,15 +61,41 @@ public class SpongeDimensionType implements DimensionType {
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends Dimension> getDimensionClass() {
-        return (Class<? extends Dimension>)this.dimensionClass;
+        return (Class<? extends Dimension>) this.dimensionClass;
+    }
+
+    public int getDimensionTypeId() {
+        return this.dimensionTypeId;
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("name", this.name)
-            .add("keepLoaded", this.keepLoaded)
-            .add("class", this.dimensionClass.getName())
-            .toString();
+        return MoreObjects.toStringHelper(this)
+                .add("name", this.name)
+                .add("keepLoaded", this.keepLoaded)
+                .add("class", this.dimensionClass.getName())
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DimensionType)) {
+            return false;
+        }
+
+        DimensionType other = (DimensionType) obj;
+        if (!this.name.equals(other.getName())) {
+            return false;
+        }
+        if (!this.dimensionClass.equals(other.getDimensionClass())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); // todo this is a warning
     }
 }

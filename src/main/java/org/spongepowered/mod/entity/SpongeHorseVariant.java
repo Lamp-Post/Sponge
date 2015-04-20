@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,8 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.HorseVariant;
+import org.spongepowered.api.data.types.HorseVariant;
+import org.spongepowered.api.text.translation.Translation;
 
 public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant {
 
@@ -32,4 +33,8 @@ public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant
         super(variant, name);
     }
 
+    @Override
+    public Translation getTranslation() {
+        return null;
+    }
 }

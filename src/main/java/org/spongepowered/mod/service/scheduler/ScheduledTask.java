@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
@@ -31,9 +30,14 @@ import org.spongepowered.api.service.scheduler.Task;
 
 import java.util.UUID;
 
-// WIP
-
+/**
+ * <p>
+ * ScheduledTask is an internal representation of a Task created by the Plugin
+ * through one of the Scheduler interfaces.
+ * </p>
+ */
 public class ScheduledTask implements Task {
+
     protected long offset;
     protected long period;
     protected PluginContainer owner;
@@ -41,31 +45,35 @@ public class ScheduledTask implements Task {
     protected long timestamp;
     protected ScheduledTaskState state;
     protected UUID id;
-    private String name;
+    protected String name;
+    protected TaskSynchroncity syncType;
 
     // Internal Task state. Not for user-service use.
-    protected enum ScheduledTaskState {
+    public enum ScheduledTaskState {
         WAITING,
         RUNNING,
         CANCELED,
     }
 
-    // No c'tor without arguments.
+    // No c'tor without arguments.  This prevents internal Sponge code from accidentally trying to
+    // instantiate a ScheduledTask incorrectly.
     @SuppressWarnings("unused")
     private ScheduledTask() {
     }
 
-    // This c'tor is OK.
-    protected ScheduledTask(long x, long t) {
+    // This c'tor is OK for internal Sponge use. APIs do not expose the c'tor.
+    protected ScheduledTask(long x, long t, TaskSynchroncity syncType) {
+        // All tasks begin waiting.
+        this.state = ScheduledTaskState.WAITING;
+
+        // Values assigned to offset and period are always interpreted by the internal
+        // Sponge implementation as in milliseconds for scaleDecriptors that are not Tick based.
         this.offset = x;
         this.period = t;
         this.owner = null;
         this.runnableBody = null;
-        this.state = ScheduledTaskState.WAITING;
         this.id = UUID.randomUUID();
-
-        //TBD
-        this.name = this.id.toString();
+        this.syncType = syncType;
     }
 
     // Builder method
@@ -106,14 +114,15 @@ public class ScheduledTask implements Task {
 
     @Override
     public PluginContainer getOwner() {
+
         return this.owner;
     }
 
     @Override
     public Optional<Long> getDelay() {
         Optional<Long> result = Optional.absent();
-        if ( this.offset > 0 ) {
-            result = Optional.of(new Long(this.offset));
+        if (this.offset > 0) {
+            result = Optional.of(this.offset);
 
         }
         return result;
@@ -122,9 +131,9 @@ public class ScheduledTask implements Task {
     @Override
     public Optional<Long> getInterval() {
         Optional<Long> result = Optional.absent();
-        if ( this.period > 0 ) {
-            result = Optional.of(new Long(this.period));
 
+        if (this.period > 0) {
+            result = Optional.of(this.period);
         }
         return result;
     }
@@ -132,37 +141,64 @@ public class ScheduledTask implements Task {
     @Override
     public boolean cancel() {
 
-        boolean bResult = true;
+        boolean bResult = false;
 
-        // When a task is canceled, it is removed from the list
-        // Even if the task is a repeating task, by removing it from the list of tasks
+        // When a task is canceled, it is removed from the map
+        // Even if the task is a repeating task, by removing it from the map of tasks
         // known in the Scheduler, the task will not repeat.
+        //
+        // A successful cancel() occurs when the opportunity is present where
+        // the task can be canceled.  If it is, then the result is true.
+        // If the task is already canceled, or already running, the task cannot
+        // be canceled.
+
+        if (this.state == ScheduledTask.ScheduledTaskState.WAITING) {
+            bResult = true;
+        }
 
         this.state = ScheduledTask.ScheduledTaskState.CANCELED;
-
-        // TODO -- possibly also release other resources (?) like the Runnable thread body?
-        // etc..
-        // bResult = true;
 
         return bResult;
     }
 
     @Override
-    public Runnable getRunnable() {
-        return this.runnableBody;
+    public Optional<Runnable> getRunnable() {
+        Optional<Runnable> result = Optional.absent();
+        if (this.runnableBody != null) {
+            result = Optional.of(this.runnableBody);
+        }
+        return result;
     }
 
     @Override
     public UUID getUniqueId() {
+
         return this.id;
     }
 
     @Override
     public Optional<String> getName() {
         Optional<String> result = Optional.absent();
-        if ( this.name != null)  {
+        if (this.name != null) {
             result = Optional.of(this.name);
         }
         return result;
+    }
+
+    @Override
+    public boolean isSynchronous() {
+        return this.syncType == TaskSynchroncity.SYNCHRONOUS;
+    }
+
+    @Override
+    public String setName(String name) {
+
+        this.name = name;
+        return this.name;
+    }
+
+    public enum TaskSynchroncity {
+        SYNCHRONOUS,
+        ASYNCHRONOUS
     }
 }

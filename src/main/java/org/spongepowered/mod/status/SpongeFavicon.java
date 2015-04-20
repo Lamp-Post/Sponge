@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,6 +47,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 
 public class SpongeFavicon implements Favicon {
+
     private final String encoded;
     private final BufferedImage decoded;
 

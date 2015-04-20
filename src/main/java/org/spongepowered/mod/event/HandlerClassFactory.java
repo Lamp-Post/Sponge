@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,21 +22,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.event;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.objectweb.asm.*;
-
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.IFNULL;
+import static org.objectweb.asm.Opcodes.IF_ACMPEQ;
+import static org.objectweb.asm.Opcodes.IF_ACMPNE;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.IMUL;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.ISTORE;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.RETURN;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class HandlerClassFactory implements HandlerFactory {
 
@@ -48,6 +75,7 @@ class HandlerClassFactory implements HandlerFactory {
             .weakValues()
             .build(
                     new CacheLoader<CacheKey, Class<?>>() {
+
                         @Override
                         public Class<?> load(CacheKey key) {
                             return createClass(key.type, key.method, key.ignoreCancelled);
@@ -57,7 +85,9 @@ class HandlerClassFactory implements HandlerFactory {
     /**
      * Creates a new class factory.
      *
-     * <p>Different instances of this class should use different packages.</p>
+     * <p>
+     * Different instances of this class should use different packages.
+     * </p>
      *
      * @param targetPackage The target package
      */
@@ -83,7 +113,9 @@ class HandlerClassFactory implements HandlerFactory {
     @SuppressWarnings("unchecked")
     private Class<? extends Handler> createClass(Class<?> type, Method method, boolean ignoreCancelled) {
         Class<?> eventClass = method.getParameterTypes()[0];
-        String name = this.targetPackage + "." + eventClass.getSimpleName() + "Handler_" + type.getSimpleName() + "_" + method.getName() + this.index.incrementAndGet();
+        String name =
+                this.targetPackage + "." + eventClass.getSimpleName() + "Handler_" + type.getSimpleName() + "_" + method.getName() + this.index
+                        .incrementAndGet();
         byte[] bytes = generateClass(type, method, eventClass, ignoreCancelled, name);
         return (Class<? extends Handler>) this.classLoader.defineClass(name, bytes);
     }
@@ -97,7 +129,8 @@ class HandlerClassFactory implements HandlerFactory {
         String invokedInternalName = Type.getInternalName(objectClass);
         String eventInternalName = Type.getInternalName(eventClass);
 
-        cw.visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, createdInternalName, null, "java/lang/Object", new String[] { Type.getInternalName(Handler.class) });
+        cw.visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, createdInternalName, null, "java/lang/Object",
+                new String[] {Type.getInternalName(Handler.class)});
 
         {
             fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "object", "L" + invokedInternalName + ";", null, null);
@@ -123,7 +156,7 @@ class HandlerClassFactory implements HandlerFactory {
             mv.visitEnd();
         }
         {
-            mv = cw.visitMethod(ACC_PUBLIC, "handle", "(Lorg/spongepowered/api/util/event/Event;)V", null, null);
+            mv = cw.visitMethod(ACC_PUBLIC, "handle", "(Lorg/spongepowered/api/event/Event;)V", null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, createdInternalName, "object", "L" + invokedInternalName + ";");
@@ -211,6 +244,7 @@ class HandlerClassFactory implements HandlerFactory {
     }
 
     private static class LocalClassLoader extends ClassLoader {
+
         public LocalClassLoader(ClassLoader parent) {
             super(parent);
         }
@@ -221,6 +255,7 @@ class HandlerClassFactory implements HandlerFactory {
     }
 
     private static class CacheKey {
+
         private final Class<?> type;
         private final Method method;
         private final boolean ignoreCancelled;
@@ -233,14 +268,24 @@ class HandlerClassFactory implements HandlerFactory {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             CacheKey cacheKey = (CacheKey) o;
 
-            if (this.ignoreCancelled != cacheKey.ignoreCancelled) return false;
-            if (!this.method.equals(cacheKey.method)) return false;
-            if (!this.type.equals(cacheKey.type)) return false;
+            if (this.ignoreCancelled != cacheKey.ignoreCancelled) {
+                return false;
+            }
+            if (!this.method.equals(cacheKey.method)) {
+                return false;
+            }
+            if (!this.type.equals(cacheKey.type)) {
+                return false;
+            }
 
             return true;
         }

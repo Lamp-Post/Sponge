@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,27 +24,44 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Map;
-
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
+
+import java.util.Map;
 
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public SpongeCoremod() {
+        // Let's get this party started
         MixinBootstrap.init();
-        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.json");
+
+        // Add pre-init mixins
+        MixinEnvironment.getEnvironment(Phase.PREINIT)
+            .addConfiguration("mixins.sponge.base.json");
+
+        // Add default mixins
+        MixinEnvironment.getDefaultEnvironment()
+            .addConfiguration("mixins.sponge.core.json")
+            .addConfiguration("mixins.sponge.api.json")
+            .addConfiguration("mixins.sponge.entityactivation.json");
+
+        // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.callback.CallbackList");
+
+        // Transformer exclusions
+        Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");
+        Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
     }
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[]{
-                MixinBootstrap.TRANSFORMER_CLASS,
-                //"org.spongepowered.mod.asm.transformers.EventTransformer",
-                //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
+        return null;
     }
 
     @Override

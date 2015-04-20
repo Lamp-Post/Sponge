@@ -1,7 +1,7 @@
 /*
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,6 +32,16 @@ public class SpongeRotation implements Rotation {
 
     public SpongeRotation(int angle) {
         this.angle = angle;
+    }
+
+    @Override
+    public String getId() {
+        return null; // TODO
+    }
+
+    @Override
+    public String getName() {
+        return null; // TODO
     }
 
     @Override
